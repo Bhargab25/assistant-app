@@ -1,0 +1,29 @@
+diff --git a/node_modules/expo-speech/build/ExponentSpeech.js b/node_modules/expo-speech/build/ExponentSpeech.js
+index 46fade2..4e0dfaf 100644
+--- a/node_modules/expo-speech/build/ExponentSpeech.js
++++ b/node_modules/expo-speech/build/ExponentSpeech.js
+@@ -1,3 +1,22 @@
+ import { requireNativeModule } from 'expo-modules-core';
+-export default requireNativeModule('ExpoSpeech');
++let ExpoSpeech;
++try {
++  ExpoSpeech = requireNativeModule('ExpoSpeech');
++} catch (e) {
++  console.warn("ExpoSpeech native module not found, using stub proxy in Expo Go:", e.message);
++  ExpoSpeech = new Proxy({}, {
++    get(target, prop) {
++      if (prop === 'addListener' || prop === 'removeListeners') {
++        return () => {};
++      }
++      return async (...args) => {
++        if (prop === 'isSpeakingAsync') {
++          return false;
++        }
++        return {};
++      };
++    }
++  });
++}
++export default ExpoSpeech;
+ //# sourceMappingURL=ExponentSpeech.js.map
+\ No newline at end of file

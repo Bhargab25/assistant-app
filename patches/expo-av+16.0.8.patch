@@ -1,0 +1,55 @@
+diff --git a/node_modules/expo-av/build/ExpoVideoManager.js b/node_modules/expo-av/build/ExpoVideoManager.js
+index ac9172a..c455518 100644
+--- a/node_modules/expo-av/build/ExpoVideoManager.js
++++ b/node_modules/expo-av/build/ExpoVideoManager.js
+@@ -1,3 +1,19 @@
+ import { requireNativeModule } from 'expo-modules-core';
+-export default requireNativeModule('ExpoVideoView');
++let ExpoVideoView;
++try {
++  ExpoVideoView = requireNativeModule('ExpoVideoView');
++} catch (e) {
++  console.warn("ExpoVideoView native module not found, using stub proxy in Expo Go:", e.message);
++  ExpoVideoView = new Proxy({}, {
++    get(target, prop) {
++      if (prop === 'addListener' || prop === 'removeListeners') {
++        return () => {};
++      }
++      return async (...args) => {
++        return {};
++      };
++    }
++  });
++}
++export default ExpoVideoView;
+ //# sourceMappingURL=ExpoVideoManager.js.map
+\ No newline at end of file
+diff --git a/node_modules/expo-av/build/ExponentAV.js b/node_modules/expo-av/build/ExponentAV.js
+index f5ea8b2..774f8b6 100644
+--- a/node_modules/expo-av/build/ExponentAV.js
++++ b/node_modules/expo-av/build/ExponentAV.js
+@@ -1,3 +1,22 @@
+ import { requireNativeModule } from 'expo-modules-core';
+-export default requireNativeModule('ExponentAV');
++let ExponentAV;
++try {
++  ExponentAV = requireNativeModule('ExponentAV');
++} catch (e) {
++  console.warn("ExponentAV native module not found, using stub proxy in Expo Go:", e.message);
++  ExponentAV = new Proxy({}, {
++    get(target, prop) {
++      if (prop === 'addListener' || prop === 'removeListeners') {
++        return () => {};
++      }
++      return async (...args) => {
++        if (prop === 'getPermissionsAsync' || prop === 'requestPermissionsAsync') {
++          return { status: 'granted', granted: true, canAskAgain: true, expires: 'never' };
++        }
++        return {};
++      };
++    }
++  });
++}
++export default ExponentAV;
+ //# sourceMappingURL=ExponentAV.js.map
+\ No newline at end of file
