@@ -416,6 +416,15 @@ export class AssistantOrchestratorService {
 
         if (currentField && currentField.field === "location_confirmation") {
             const answer = userMessage.toLowerCase();
+
+            // User closed the map screen without saving — abort immediately
+            if (answer.includes("[system:map_cancelled]")) {
+                await PendingIntentService.clear();
+                return {
+                    reply: "No problem! The map was closed without saving. I've cancelled the location-based reminder. Let me know if you'd like to try again.",
+                    completed: false
+                };
+            }
             
             if (answer.includes("[system:map_saved]")) {
                 // Location was already saved by the Map UI, so we just fall through to resolveStep

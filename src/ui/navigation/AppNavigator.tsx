@@ -28,6 +28,7 @@ import ReminderRecommendationsScreen from "../screens/reminders/ReminderRecommen
 
 import MapSelectionScreen from "../screens/reminders/MapSelectionScreen";
 
+import ManageLocationsScreen from "../screens/settings/ManageLocationsScreen";
 
 /*
 |--------------------------------------------------------------------------
@@ -88,9 +89,9 @@ export type RootStackParamList = {
 
   MapSelection: {
     locationName: string;
-    onSave: () => void;
   };
 
+  ManageLocations: undefined;
 
   /*
     |--------------------------------------------------------------------------
@@ -176,6 +177,13 @@ export default function AppNavigator() {
           options={{
             presentation: "modal",
           }}
+        />
+
+        {/* Location Management */}
+
+        <Stack.Screen
+          name="ManageLocations"
+          component={ManageLocationsScreen}
         />
 
         {/* Full Screen Alarm Runtime */}

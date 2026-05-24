@@ -10,7 +10,7 @@ import {
   Keyboard,
   DeviceEventEmitter,
 } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE, UrlTile } from "react-native-maps";
+import { WebView } from "react-native-webview";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
@@ -20,14 +20,16 @@ import * as Location from "expo-location";
 type Props = NativeStackScreenProps<RootStackParamList, "MapSelection">;
 
 export default function MapSelectionScreen({ route, navigation }: Props) {
-  const { locationName, onSave } = route.params;
-  const mapRef = useRef<MapView>(null);
+  const { locationName } = route.params;
+  const webviewRef = useRef<WebView>(null);
+  const webviewReadyRef = useRef(false);
+  const pendingLocationRef = useRef<{ latitude: number; longitude: number } | null>(null);
+  // Track whether the user explicitly saved so we can emit a cancel event on unmount if not
+  const savedRef = useRef(false);
 
-  const [region, setRegion] = useState({
+  const [initialCoordinates] = useState({
     latitude: 37.78825,
     longitude: -122.4324,
-    latitudeDelta: 0.015,
-    longitudeDelta: 0.015,
   });
 
   const [markerCoordinate, setMarkerCoordinate] = useState({
@@ -40,6 +42,15 @@ export default function MapSelectionScreen({ route, navigation }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
 
+  // On unmount, if the user never pressed Save, notify the orchestrator to abort
+  useEffect(() => {
+    return () => {
+      if (!savedRef.current) {
+        DeviceEventEmitter.emit('MAP_LOCATION_CANCELLED');
+      }
+    };
+  }, []);
+
   useEffect(() => {
     (async () => {
       try {
@@ -50,21 +61,24 @@ export default function MapSelectionScreen({ route, navigation }: Props) {
           return;
         }
 
+        const updateWebViewLocation = (lat: number, lng: number) => {
+          if (webviewReadyRef.current) {
+            webviewRef.current?.injectJavaScript(
+              `window.updateLocation(${lat}, ${lng}); true;`
+            );
+          } else {
+            pendingLocationRef.current = { latitude: lat, longitude: lng };
+          }
+        };
+
         // 1. Try to get last known location first (almost instantaneous)
         let lastKnown = await Location.getLastKnownPositionAsync({});
         if (lastKnown) {
-          const targetRegion = {
-            latitude: lastKnown.coords.latitude,
-            longitude: lastKnown.coords.longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          };
-          setRegion(targetRegion);
           setMarkerCoordinate({
             latitude: lastKnown.coords.latitude,
             longitude: lastKnown.coords.longitude,
           });
-          mapRef.current?.animateToRegion(targetRegion, 800);
+          updateWebViewLocation(lastKnown.coords.latitude, lastKnown.coords.longitude);
         }
 
         // 2. Request balanced accuracy current position (fast & robust)
@@ -72,18 +86,11 @@ export default function MapSelectionScreen({ route, navigation }: Props) {
           accuracy: Location.Accuracy.Balanced,
         });
 
-        const newRegion = {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        };
-        setRegion(newRegion);
         setMarkerCoordinate({
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
         });
-        mapRef.current?.animateToRegion(newRegion, 1000);
+        updateWebViewLocation(location.coords.latitude, location.coords.longitude);
         setStatusMessage(`Drag pin or search to set ${locationName}`);
       } catch (error) {
         console.warn("Failed to get current location for map:", error);
@@ -105,18 +112,14 @@ export default function MapSelectionScreen({ route, navigation }: Props) {
       const results = await Location.geocodeAsync(searchQuery);
       if (results && results.length > 0) {
         const firstResult = results[0];
-        const targetRegion = {
-          latitude: firstResult.latitude,
-          longitude: firstResult.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        };
         setMarkerCoordinate({
           latitude: firstResult.latitude,
           longitude: firstResult.longitude,
         });
-        setRegion(targetRegion);
-        mapRef.current?.animateToRegion(targetRegion, 1000);
+        // Center Leaflet Map
+        webviewRef.current?.injectJavaScript(
+          `window.updateLocation(${firstResult.latitude}, ${firstResult.longitude}); true;`
+        );
         setStatusMessage(`Selected: ${searchQuery}`);
       } else {
         Alert.alert("No Results", `Could not find any coordinates for "${searchQuery}". Please try another search term.`);
@@ -139,6 +142,8 @@ export default function MapSelectionScreen({ route, navigation }: Props) {
         longitude: markerCoordinate.longitude,
       });
       
+      // Mark as saved BEFORE navigating so the unmount effect doesn't fire a cancel
+      savedRef.current = true;
       navigation.goBack();
       
       // Trigger the callback to resume assistant conversation
@@ -152,8 +157,91 @@ export default function MapSelectionScreen({ route, navigation }: Props) {
   };
 
   const handleCancel = () => {
+    // savedRef remains false — unmount effect will emit MAP_LOCATION_CANCELLED
     navigation.goBack();
   };
+
+  const handleWebViewMessage = (event: any) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data);
+      if (data.type === "READY") {
+        webviewReadyRef.current = true;
+        if (pendingLocationRef.current) {
+          webviewRef.current?.injectJavaScript(
+            `window.updateLocation(${pendingLocationRef.current.latitude}, ${pendingLocationRef.current.longitude}); true;`
+          );
+          pendingLocationRef.current = null;
+        }
+      } else if (data.latitude !== undefined && data.longitude !== undefined) {
+        setMarkerCoordinate({
+          latitude: data.latitude,
+          longitude: data.longitude,
+        });
+      }
+    } catch (e) {
+      console.warn("Failed to parse WebView message:", e);
+    }
+  };
+
+  // Generate the Leaflet HTML centered at the initial coordinates
+  const htmlSource = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <style>
+    body { padding: 0; margin: 0; background-color: #f3f4f6; }
+    html, body, #map { height: 100%; width: 100vw; }
+    .leaflet-control-attribution { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    var map = L.map('map', { zoomControl: false }).setView([${initialCoordinates.latitude}, ${initialCoordinates.longitude}], 16);
+    
+    L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+      maxZoom: 20,
+      attribution: '&copy; Google Maps'
+    }).addTo(map);
+
+    var marker = L.marker([${initialCoordinates.latitude}, ${initialCoordinates.longitude}], { draggable: true }).addTo(map);
+
+    function sendCoordinates(lat, lng) {
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ latitude: lat, longitude: lng }));
+      }
+    }
+
+    marker.on('dragend', function(event) {
+      var position = marker.getLatLng();
+      sendCoordinates(position.lat, position.lng);
+    });
+
+    map.on('click', function(event) {
+      var latlng = event.latlng;
+      marker.setLatLng(latlng);
+      sendCoordinates(latlng.lat, latlng.lng);
+    });
+
+    window.updateLocation = function(lat, lng) {
+      var latlng = L.latLng(lat, lng);
+      marker.setLatLng(latlng);
+      map.setView(latlng, 16);
+      sendCoordinates(lat, lng);
+    };
+
+    // Notify React Native that Leaflet script is fully initialized
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: "READY" }));
+    }
+  </script>
+</body>
+</html>
+  `;
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
@@ -197,29 +285,15 @@ export default function MapSelectionScreen({ route, navigation }: Props) {
 
       {/* Map View Area */}
       <View style={styles.mapContainer}>
-        <MapView
-          ref={mapRef}
-          provider={PROVIDER_GOOGLE}
-          mapType="none"
+        <WebView
+          ref={webviewRef}
+          originWhitelist={["*"]}
+          source={{ html: htmlSource }}
+          onMessage={handleWebViewMessage}
           style={styles.map}
-          initialRegion={region}
-          onPress={(e) => setMarkerCoordinate(e.nativeEvent.coordinate)}
-          showsUserLocation={true}
-          showsMyLocationButton={true}
-        >
-          <UrlTile 
-            urlTemplate="https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            maximumZ={19}
-            flipY={false}
-          />
-          <Marker
-            coordinate={markerCoordinate}
-            title={locationName}
-            description="Drag to refine your geofenced area"
-            draggable
-            onDragEnd={(e) => setMarkerCoordinate(e.nativeEvent.coordinate)}
-          />
-        </MapView>
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+        />
       </View>
 
       {/* Footer Controls */}
@@ -329,12 +403,10 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
-    position: "relative",
-    overflow: "hidden",
+    backgroundColor: "#e5e7eb",
   },
   map: {
-    width: "100%",
-    height: "100%",
+    flex: 1,
   },
   footer: {
     flexDirection: "row",

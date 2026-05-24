@@ -481,6 +481,19 @@ export default function AssistantChatScreen() {
 
   /*
   |--------------------------------------------------------------------------
+  | Map Cancelled Listener
+  |--------------------------------------------------------------------------
+  */
+
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener('MAP_LOCATION_CANCELLED', () => {
+      sendMessage("[system:map_cancelled]");
+    });
+    return () => subscription.remove();
+  }, []);
+
+  /*
+  |--------------------------------------------------------------------------
   | Render Message
   |--------------------------------------------------------------------------
   */

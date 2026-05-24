@@ -199,7 +199,7 @@ export class ReminderScheduler {
             |--------------------------------------------------------------------------
             */
 
-            const triggerDate =
+            let triggerDate =
                 this.buildDate(
                     reminder.schedule
                         .date,
@@ -212,17 +212,58 @@ export class ReminderScheduler {
             |--------------------------------------------------------------------------
             | Past Date
             |--------------------------------------------------------------------------
+            |
+            | For repeating reminders, advance to the next future occurrence instead
+            | of silently bailing. This fixes disable → re-enable being broken.
+            |
             */
 
             if (
                 triggerDate.getTime() <=
                 Date.now()
             ) {
-                logWarn(
-                    "Reminder trigger already passed"
-                );
+                const repeat = reminder.schedule.repeat;
 
-                return;
+                if (
+                    repeat === "daily" ||
+                    repeat === "weekly" ||
+                    repeat === "monthly"
+                ) {
+                    triggerDate = this.findNextFutureOccurrence(
+                        triggerDate,
+                        repeat
+                    );
+
+                    // Persist the advanced date so future calls are already correct
+                    reminder.schedule.date =
+                        triggerDate
+                            .toISOString()
+                            .split("T")[0];
+
+                    await ReminderStorage.update(
+                        reminder.id,
+                        {
+                            schedule: {
+                                ...reminder.schedule,
+                            },
+                        }
+                    );
+
+                    logInfo(
+                        "Repeating reminder advanced to next future occurrence",
+                        {
+                            reminderId: reminder.id,
+                            nextDate: reminder.schedule.date,
+                        }
+                    );
+                } else {
+                    logWarn(
+                        "Reminder trigger already passed — one-time reminder skipped",
+                        { reminderId: reminder.id }
+                    );
+
+                    return;
+                }
             }
 
             /*
@@ -854,6 +895,43 @@ export class ReminderScheduler {
         }
 
         return current;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Find Next Future Occurrence
+    |--------------------------------------------------------------------------
+    |
+    | Given a past triggerDate and a repeat type, advances the date forward
+    | in the correct interval until it is in the future. Handles cases where
+    | the reminder was disabled for multiple intervals (e.g., a week or more).
+    |
+    */
+
+    private static findNextFutureOccurrence(
+        pastDate: Date,
+        repeat: "daily" | "weekly" | "monthly"
+    ): Date {
+        const next = new Date(pastDate);
+        const now = Date.now();
+
+        while (next.getTime() <= now) {
+            switch (repeat) {
+                case "daily":
+                    next.setDate(next.getDate() + 1);
+                    break;
+
+                case "weekly":
+                    next.setDate(next.getDate() + 7);
+                    break;
+
+                case "monthly":
+                    next.setMonth(next.getMonth() + 1);
+                    break;
+            }
+        }
+
+        return next;
     }
 
     /*

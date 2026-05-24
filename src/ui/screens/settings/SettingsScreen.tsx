@@ -6,8 +6,13 @@ import {
   StyleSheet,
   Switch,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
+
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../navigation/AppNavigator";
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +29,8 @@ import {
 */
 
 export default function SettingsScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   /*
   |--------------------------------------------------------------------------
   | State
@@ -158,6 +165,29 @@ export default function SettingsScreen() {
           notificationSounds,
           setNotificationSounds,
         )}
+
+        {/* Locations Section */}
+
+        <Text style={styles.sectionTitle}>Locations</Text>
+
+        <TouchableOpacity
+          style={styles.navCard}
+          activeOpacity={0.7}
+          onPress={() => navigation.navigate("ManageLocations")}
+        >
+          <View style={styles.navCardLeft}>
+            <View style={styles.navCardIcon}>
+              <Text style={styles.navCardIconText}>📍</Text>
+            </View>
+            <View style={styles.navCardTexts}>
+              <Text style={styles.navCardTitle}>Manage Saved Locations</Text>
+              <Text style={styles.navCardDescription}>
+                View, and delete your registered geofence locations
+              </Text>
+            </View>
+          </View>
+          <Text style={styles.navCardChevron}>›</Text>
+        </TouchableOpacity>
 
         {/* Runtime Status */}
 
@@ -374,5 +404,65 @@ const styles = StyleSheet.create({
     color: "#6b7280",
 
     fontSize: 13,
+  },
+
+  navCard: {
+    marginHorizontal: 20,
+    marginBottom: 16,
+    borderRadius: 22,
+    padding: 18,
+    backgroundColor: "#ffffff",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+
+  navCardLeft: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  navCardIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 14,
+    backgroundColor: "#eff6ff",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 14,
+  },
+
+  navCardIconText: {
+    fontSize: 22,
+  },
+
+  navCardTexts: {
+    flex: 1,
+    paddingRight: 8,
+  },
+
+  navCardTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#111827",
+  },
+
+  navCardDescription: {
+    marginTop: 4,
+    fontSize: 13,
+    color: "#6b7280",
+    lineHeight: 19,
+  },
+
+  navCardChevron: {
+    fontSize: 24,
+    color: "#9ca3af",
+    fontWeight: "300",
   },
 });
