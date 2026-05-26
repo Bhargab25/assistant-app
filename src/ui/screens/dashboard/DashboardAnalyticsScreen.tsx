@@ -1,4 +1,5 @@
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useTheme } from "../../../shared/store/theme.store";
 
 /*
 |--------------------------------------------------------------------------
@@ -15,6 +16,9 @@ import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 */
 
 export default function DashboardAnalyticsScreen() {
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors, isDark);
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -148,11 +152,11 @@ export default function DashboardAnalyticsScreen() {
 |--------------------------------------------------------------------------
 */
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
 
-    backgroundColor: "#f4f7fb",
+    backgroundColor: colors.background,
   },
 
   scrollContent: {
@@ -170,7 +174,7 @@ const styles = StyleSheet.create({
 
     fontWeight: "700",
 
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   headerSubtitle: {
@@ -178,7 +182,7 @@ const styles = StyleSheet.create({
 
     fontSize: 15,
 
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
 
   performanceCard: {
@@ -190,7 +194,7 @@ const styles = StyleSheet.create({
 
     padding: 24,
 
-    backgroundColor: "#2563eb",
+    backgroundColor: colors.primary,
   },
 
   performanceTitle: {
@@ -234,13 +238,16 @@ const styles = StyleSheet.create({
   metricCard: {
     width: "48%",
 
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
 
     borderRadius: 22,
 
     padding: 22,
 
     marginBottom: 16,
+
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   metricValue: {
@@ -248,7 +255,7 @@ const styles = StyleSheet.create({
 
     fontWeight: "800",
 
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   metricLabel: {
@@ -256,7 +263,7 @@ const styles = StyleSheet.create({
 
     lineHeight: 20,
 
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
 
   runtimeCard: {
@@ -268,7 +275,9 @@ const styles = StyleSheet.create({
 
     padding: 22,
 
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   sectionTitle: {
@@ -276,7 +285,7 @@ const styles = StyleSheet.create({
 
     fontWeight: "700",
 
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   runtimeRow: {
@@ -292,13 +301,13 @@ const styles = StyleSheet.create({
   runtimeLabel: {
     fontSize: 15,
 
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   runtimeValue: {
     fontWeight: "700",
 
-    color: "#16a34a",
+    color: colors.success,
   },
 
   insightCard: {
@@ -310,7 +319,9 @@ const styles = StyleSheet.create({
 
     padding: 24,
 
-    backgroundColor: "#111827",
+    backgroundColor: isDark ? colors.surfaceSecondary : "#0f172a",
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   insightTitle: {
@@ -326,7 +337,7 @@ const styles = StyleSheet.create({
 
     lineHeight: 24,
 
-    color: "rgba(255,255,255,0.85)",
+    color: isDark ? colors.textSecondary : "rgba(255,255,255,0.85)",
   },
 
   usageCard: {
@@ -338,7 +349,9 @@ const styles = StyleSheet.create({
 
     padding: 22,
 
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   usageRow: {
@@ -354,7 +367,7 @@ const styles = StyleSheet.create({
   usageLabel: {
     fontSize: 15,
 
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   usageValue: {
@@ -362,6 +375,6 @@ const styles = StyleSheet.create({
 
     fontWeight: "700",
 
-    color: "#2563eb",
+    color: colors.primary,
   },
 });

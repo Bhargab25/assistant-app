@@ -1,4 +1,4 @@
-import { Text } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
@@ -42,6 +42,8 @@ import ReminderAutomationScreen from "../screens/reminders/ReminderAutomationScr
 
 import SettingsScreen from "../screens/settings/SettingsScreen";
 
+import { useTheme } from "../../shared/store/theme.store";
+
 /*
 |--------------------------------------------------------------------------
 | Tab Navigator
@@ -74,9 +76,12 @@ const Tab = createBottomTabNavigator<BottomTabParamList>();
 | - assistant navigation structure
 | - runtime module entrypoints
 |
+|
 */
 
 export default function BottomTabNavigator() {
+  const { colors } = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -88,11 +93,15 @@ export default function BottomTabNavigator() {
           paddingBottom: 10,
 
           paddingTop: 10,
+
+          backgroundColor: colors.surface,
+
+          borderTopColor: colors.borderLight,
         },
 
-        tabBarActiveTintColor: "#2563eb",
+        tabBarActiveTintColor: colors.primary,
 
-        tabBarInactiveTintColor: "#6b7280",
+        tabBarInactiveTintColor: colors.textSecondary,
       }}
     >
       {/* Dashboard */}
@@ -101,16 +110,12 @@ export default function BottomTabNavigator() {
         name="Dashboard"
         component={HomeDashboardScreen}
         options={{
-          tabBarIcon: ({ color }) => (
-            <Text
-              style={{
-                fontSize: 20,
-
-                color,
-              }}
-            >
-              🏠
-            </Text>
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "home" : "home-outline"}
+              size={22}
+              color={color}
+            />
           ),
         }}
       />
@@ -121,16 +126,12 @@ export default function BottomTabNavigator() {
         name="Reminders"
         component={ReminderListScreen}
         options={{
-          tabBarIcon: ({ color }) => (
-            <Text
-              style={{
-                fontSize: 20,
-
-                color,
-              }}
-            >
-              ⏰
-            </Text>
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "alarm" : "alarm-outline"}
+              size={22}
+              color={color}
+            />
           ),
         }}
       />
@@ -141,16 +142,12 @@ export default function BottomTabNavigator() {
         name="Analytics"
         component={DashboardAnalyticsScreen}
         options={{
-          tabBarIcon: ({ color }) => (
-            <Text
-              style={{
-                fontSize: 20,
-
-                color,
-              }}
-            >
-              📊
-            </Text>
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "stats-chart" : "stats-chart-outline"}
+              size={22}
+              color={color}
+            />
           ),
         }}
       />
@@ -161,16 +158,12 @@ export default function BottomTabNavigator() {
         name="Automation"
         component={ReminderAutomationScreen}
         options={{
-          tabBarIcon: ({ color }) => (
-            <Text
-              style={{
-                fontSize: 20,
-
-                color,
-              }}
-            >
-              ⚡
-            </Text>
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "flash" : "flash-outline"}
+              size={22}
+              color={color}
+            />
           ),
         }}
       />
@@ -181,16 +174,12 @@ export default function BottomTabNavigator() {
         name="Settings"
         component={SettingsScreen}
         options={{
-          tabBarIcon: ({ color }) => (
-            <Text
-              style={{
-                fontSize: 20,
-
-                color,
-              }}
-            >
-              ⚙️
-            </Text>
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "settings" : "settings-outline"}
+              size={22}
+              color={color}
+            />
           ),
         }}
       />

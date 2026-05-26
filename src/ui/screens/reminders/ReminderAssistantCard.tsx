@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Reminder } from "../../../core/reminders/reminder.types";
+import { useTheme } from "../../../shared/store/theme.store";
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,9 @@ export default function ReminderAssistantCard({
 
   onToggle,
 }: Props) {
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors, isDark);
+
   return (
     <View style={styles.card}>
       {/* Title */}
@@ -83,7 +87,7 @@ export default function ReminderAssistantCard({
             styles.statusDot,
 
             {
-              backgroundColor: reminder.runtime.active ? "#16a34a" : "#dc2626",
+              backgroundColor: reminder.runtime.active ? colors.success : colors.danger,
             },
           ]}
         />
@@ -126,9 +130,9 @@ export default function ReminderAssistantCard({
 |--------------------------------------------------------------------------
 */
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   card: {
-    backgroundColor: "#ffffff",
+    backgroundColor: isDark ? colors.background : "#ffffff",
 
     borderRadius: 22,
 
@@ -137,6 +141,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
 
     width: "100%",
+
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   title: {
@@ -144,13 +151,13 @@ const styles = StyleSheet.create({
 
     fontWeight: "700",
 
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   description: {
     marginTop: 10,
 
-    color: "#6b7280",
+    color: colors.textSecondary,
 
     lineHeight: 22,
   },
@@ -164,13 +171,13 @@ const styles = StyleSheet.create({
   },
 
   metaLabel: {
-    color: "#6b7280",
+    color: colors.textSecondary,
 
     fontWeight: "600",
   },
 
   metaValue: {
-    color: "#111827",
+    color: colors.textPrimary,
 
     fontWeight: "700",
 
@@ -198,7 +205,7 @@ const styles = StyleSheet.create({
 
     fontWeight: "700",
 
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   actions: {
@@ -208,7 +215,7 @@ const styles = StyleSheet.create({
   },
 
   editButton: {
-    backgroundColor: "#dbeafe",
+    backgroundColor: colors.primaryLight,
 
     paddingHorizontal: 16,
 
@@ -220,13 +227,13 @@ const styles = StyleSheet.create({
   },
 
   editText: {
-    color: "#2563eb",
+    color: colors.primary,
 
     fontWeight: "700",
   },
 
   toggleButton: {
-    backgroundColor: "#dcfce7",
+    backgroundColor: isDark ? "rgba(16, 185, 129, 0.15)" : "#dcfce7",
 
     paddingHorizontal: 16,
 
@@ -238,13 +245,13 @@ const styles = StyleSheet.create({
   },
 
   toggleText: {
-    color: "#16a34a",
+    color: colors.success,
 
     fontWeight: "700",
   },
 
   deleteButton: {
-    backgroundColor: "#fee2e2",
+    backgroundColor: isDark ? "rgba(239, 68, 68, 0.15)" : "#fee2e2",
 
     paddingHorizontal: 16,
 
@@ -254,7 +261,7 @@ const styles = StyleSheet.create({
   },
 
   deleteText: {
-    color: "#dc2626",
+    color: colors.danger,
 
     fontWeight: "700",
   },

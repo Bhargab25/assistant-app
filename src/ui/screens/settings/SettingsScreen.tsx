@@ -13,6 +13,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
+import { useTheme, useThemeStore } from "../../../shared/store/theme.store";
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,9 @@ import { RootStackParamList } from "../../navigation/AppNavigator";
 
 export default function SettingsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { colors, mode } = useTheme();
+  const { setMode } = useThemeStore();
+  const styles = getStyles(colors);
 
   /*
   |--------------------------------------------------------------------------
@@ -110,6 +114,63 @@ export default function SettingsScreen() {
             Configure AI assistant behavior, workflows, automation systems, and
             intelligent runtime services.
           </Text>
+        </View>
+
+        {/* Theme Settings */}
+
+        <Text style={styles.sectionTitle}>Theme Mode</Text>
+
+        <View style={styles.themeSelectorCard}>
+          <TouchableOpacity
+            style={[
+              styles.themeOption,
+              mode === "light" && styles.themeOptionActive,
+            ]}
+            onPress={() => setMode("light")}
+          >
+            <Text
+              style={[
+                styles.themeOptionText,
+                mode === "light" && styles.themeOptionTextActive,
+              ]}
+            >
+              Light
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.themeOption,
+              mode === "dark" && styles.themeOptionActive,
+            ]}
+            onPress={() => setMode("dark")}
+          >
+            <Text
+              style={[
+                styles.themeOptionText,
+                mode === "dark" && styles.themeOptionTextActive,
+              ]}
+            >
+              Dark
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.themeOption,
+              mode === "system" && styles.themeOptionActive,
+            ]}
+            onPress={() => setMode("system")}
+          >
+            <Text
+              style={[
+                styles.themeOptionText,
+                mode === "system" && styles.themeOptionTextActive,
+              ]}
+            >
+              System
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Assistant Settings */}
@@ -237,11 +298,11 @@ export default function SettingsScreen() {
 |--------------------------------------------------------------------------
 */
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
 
-    backgroundColor: "#f4f7fb",
+    backgroundColor: colors.background,
   },
 
   scrollContent: {
@@ -259,7 +320,7 @@ const styles = StyleSheet.create({
 
     fontWeight: "700",
 
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   headerSubtitle: {
@@ -267,7 +328,7 @@ const styles = StyleSheet.create({
 
     fontSize: 15,
 
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
 
   assistantCard: {
@@ -279,7 +340,7 @@ const styles = StyleSheet.create({
 
     padding: 24,
 
-    backgroundColor: "#2563eb",
+    backgroundColor: colors.primary,
   },
 
   assistantTitle: {
@@ -309,7 +370,7 @@ const styles = StyleSheet.create({
 
     fontWeight: "700",
 
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   settingCard: {
@@ -321,7 +382,7 @@ const styles = StyleSheet.create({
 
     padding: 18,
 
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
 
     flexDirection: "row",
 
@@ -341,7 +402,7 @@ const styles = StyleSheet.create({
 
     fontWeight: "700",
 
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   settingDescription: {
@@ -349,7 +410,41 @@ const styles = StyleSheet.create({
 
     lineHeight: 22,
 
-    color: "#6b7280",
+    color: colors.textSecondary,
+  },
+
+  /* Theme selector card */
+  themeSelectorCard: {
+    flexDirection: "row",
+    marginHorizontal: 20,
+    marginBottom: 16,
+    borderRadius: 22,
+    backgroundColor: colors.surface,
+    padding: 6,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+  },
+
+  themeOption: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 16,
+  },
+
+  themeOptionActive: {
+    backgroundColor: colors.primary,
+  },
+
+  themeOptionText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.textSecondary,
+  },
+
+  themeOptionTextActive: {
+    color: "#ffffff",
   },
 
   runtimeCard: {
@@ -361,7 +456,9 @@ const styles = StyleSheet.create({
 
     padding: 22,
 
-    backgroundColor: "#111827",
+    backgroundColor: colors.surfaceSecondary,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   runtimeTitle: {
@@ -369,7 +466,7 @@ const styles = StyleSheet.create({
 
     fontWeight: "700",
 
-    color: "#ffffff",
+    color: colors.textPrimary,
   },
 
   runtimeRow: {
@@ -383,7 +480,7 @@ const styles = StyleSheet.create({
   },
 
   runtimeLabel: {
-    color: "rgba(255,255,255,0.88)",
+    color: colors.textSecondary,
 
     fontSize: 15,
   },
@@ -391,7 +488,7 @@ const styles = StyleSheet.create({
   runtimeActive: {
     fontWeight: "700",
 
-    color: "#4ade80",
+    color: colors.success,
   },
 
   versionContainer: {
@@ -401,7 +498,7 @@ const styles = StyleSheet.create({
   },
 
   versionText: {
-    color: "#6b7280",
+    color: colors.textMuted,
 
     fontSize: 13,
   },
@@ -411,15 +508,17 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 22,
     padding: 18,
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    borderWidth: 1,
+    borderColor: colors.borderLight,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.04,
     shadowRadius: 6,
-    elevation: 2,
+    elevation: 1,
   },
 
   navCardLeft: {
@@ -432,7 +531,7 @@ const styles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 14,
-    backgroundColor: "#eff6ff",
+    backgroundColor: colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -450,19 +549,19 @@ const styles = StyleSheet.create({
   navCardTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   navCardDescription: {
     marginTop: 4,
     fontSize: 13,
-    color: "#6b7280",
+    color: colors.textSecondary,
     lineHeight: 19,
   },
 
   navCardChevron: {
     fontSize: 24,
-    color: "#9ca3af",
+    color: colors.textMuted,
     fontWeight: "300",
   },
 });

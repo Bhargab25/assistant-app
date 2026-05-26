@@ -24,7 +24,9 @@ import { Reminder } from "../../../core/reminders/reminder.types";
 
 import { RootStackParamList } from "../../navigation/AppNavigator";
 
-import { colors } from "../../../shared/theme/colors";
+import { useTheme } from "../../../shared/store/theme.store";
+
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +43,9 @@ type Navigation = NativeStackNavigationProp<RootStackParamList>;
 */
 
 export default function ReminderListScreen() {
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors, isDark);
+
   /*
   |--------------------------------------------------------------------------
   | Navigation
@@ -185,19 +190,19 @@ export default function ReminderListScreen() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "#16a34a";
+        return colors.success;
 
       case "ringing":
-        return "#dc2626";
+        return colors.danger;
 
       case "snoozed":
-        return "#2563eb";
+        return colors.primary;
 
       case "missed":
-        return "#f59e0b";
+        return colors.warning;
 
       default:
-        return "#6b7280";
+        return colors.textSecondary;
     }
   };
 
@@ -313,7 +318,7 @@ export default function ReminderListScreen() {
   if (!loading && reminders.length === 0) {
     return (
       <SafeAreaView style={styles.emptyContainer}>
-        <Text style={styles.emptyEmoji}>⏰</Text>
+        <Ionicons name="alarm-outline" size={72} color={colors.textSecondary} style={{ marginBottom: 20 }} />
 
         <Text style={styles.emptyTitle}>No Reminders Yet</Text>
 
@@ -377,7 +382,7 @@ export default function ReminderListScreen() {
         style={styles.fab}
         onPress={() => navigation.navigate("AssistantChat")}
       >
-        <Text style={styles.fabText}>+</Text>
+        <Ionicons name="add" size={36} color="#ffffff" />
       </Pressable>
     </SafeAreaView>
   );
@@ -389,7 +394,7 @@ export default function ReminderListScreen() {
 |--------------------------------------------------------------------------
 */
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
 
@@ -449,7 +454,7 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
 
     borderRadius: 24,
 
@@ -529,7 +534,7 @@ const styles = StyleSheet.create({
 
     borderRadius: 999,
 
-    backgroundColor: "#e5e7eb",
+    backgroundColor: colors.border,
 
     marginRight: 10,
 
@@ -573,7 +578,7 @@ const styles = StyleSheet.create({
 
     borderRadius: 14,
 
-    backgroundColor: "#dbeafe",
+    backgroundColor: colors.primaryLight,
 
     marginRight: 12,
   },
@@ -591,11 +596,11 @@ const styles = StyleSheet.create({
 
     borderRadius: 14,
 
-    backgroundColor: "#fee2e2",
+    backgroundColor: isDark ? "rgba(239, 68, 68, 0.15)" : "#fee2e2",
   },
 
   deleteButtonText: {
-    color: "#dc2626",
+    color: colors.danger,
 
     fontWeight: "700",
   },

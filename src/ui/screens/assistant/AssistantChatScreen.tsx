@@ -10,6 +10,7 @@ import {
   TextInput,
   View,
   DeviceEventEmitter,
+  StatusBar,
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -23,6 +24,7 @@ import { RootStackParamList } from "../../navigation/AppNavigator";
 import { AssistantMessage } from "../../../core/assistant/assistant-message.types";
 
 import { generateId } from "../../../shared/utils";
+import { useTheme } from "../../../shared/store/theme.store";
 
 import { ParserService } from "../../../core/parser/parser.service";
 
@@ -45,6 +47,9 @@ import { Reminder } from "../../../core/reminders/reminder.types";
 */
 
 export default function AssistantChatScreen() {
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors, isDark);
+
   /*
   |--------------------------------------------------------------------------
   | State
@@ -563,7 +568,8 @@ export default function AssistantChatScreen() {
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <KeyboardAvoidingView
         style={styles.keyboard}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.select({ ios: 0, android: StatusBar.currentHeight })}
       >
         {/* Header */}
 
@@ -603,7 +609,7 @@ export default function AssistantChatScreen() {
             value={input}
             onChangeText={setInput}
             placeholder="Ask or automate something..."
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={colors.textMuted}
             style={styles.input}
             multiline
           />
@@ -636,11 +642,11 @@ export default function AssistantChatScreen() {
 |--------------------------------------------------------------------------
 */
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
 
-    backgroundColor: "#f5f7fb",
+    backgroundColor: colors.background,
   },
 
   keyboard: {
@@ -654,9 +660,9 @@ const styles = StyleSheet.create({
 
     borderBottomWidth: 1,
 
-    borderBottomColor: "#e5e7eb",
+    borderBottomColor: colors.borderLight,
 
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
   },
 
   headerTitle: {
@@ -664,7 +670,7 @@ const styles = StyleSheet.create({
 
     fontWeight: "700",
 
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   headerSubtitle: {
@@ -672,7 +678,7 @@ const styles = StyleSheet.create({
 
     fontSize: 14,
 
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
 
   messagesContainer: {
@@ -711,7 +717,7 @@ const styles = StyleSheet.create({
       height: 1,
     },
 
-    shadowOpacity: 0.05,
+    shadowOpacity: isDark ? 0.25 : 0.05,
 
     shadowRadius: 2,
 
@@ -719,11 +725,13 @@ const styles = StyleSheet.create({
   },
 
   assistantBubble: {
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
+    borderWidth: isDark ? 1 : 0,
+    borderColor: colors.borderLight,
   },
 
   userBubble: {
-    backgroundColor: "#2563eb",
+    backgroundColor: colors.primary,
   },
 
   messageText: {
@@ -733,7 +741,7 @@ const styles = StyleSheet.create({
   },
 
   assistantText: {
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   userText: {
@@ -749,17 +757,20 @@ const styles = StyleSheet.create({
   typingBubble: {
     alignSelf: "flex-start",
 
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
 
     borderRadius: 18,
 
     paddingHorizontal: 14,
 
     paddingVertical: 12,
+
+    borderWidth: isDark ? 1 : 0,
+    borderColor: colors.borderLight,
   },
 
   typingText: {
-    color: "#6b7280",
+    color: colors.textSecondary,
 
     fontSize: 14,
 
@@ -777,9 +788,9 @@ const styles = StyleSheet.create({
 
     borderTopWidth: 1,
 
-    borderTopColor: "#e5e7eb",
+    borderTopColor: colors.borderLight,
 
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
   },
 
   input: {
@@ -791,7 +802,7 @@ const styles = StyleSheet.create({
 
     borderWidth: 1,
 
-    borderColor: "#d1d5db",
+    borderColor: colors.border,
 
     borderRadius: 16,
 
@@ -801,15 +812,15 @@ const styles = StyleSheet.create({
 
     fontSize: 16,
 
-    backgroundColor: "#f9fafb",
+    backgroundColor: colors.surfaceSecondary,
 
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   sendButton: {
     marginLeft: 10,
 
-    backgroundColor: "#2563eb",
+    backgroundColor: colors.primary,
 
     borderRadius: 14,
 

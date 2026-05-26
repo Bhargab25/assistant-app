@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 
 import {
-  ActivityIndicator,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -26,6 +25,8 @@ import { AppBootstrap } from "./src/core/app/bootstrap";
 */
 
 import AppNavigator from "./src/ui/navigation/AppNavigator";
+
+import FuturisticSplashScreen from "./src/ui/components/FuturisticSplashScreen";
 
 /*
 |--------------------------------------------------------------------------
@@ -70,51 +71,7 @@ export default function App() {
   */
 
   useEffect(() => {
-    let mounted = true;
-
-    const bootstrap = async () => {
-      try {
-        /*
-          |--------------------------------------------------------------------------
-          | Initialize Platform
-          |--------------------------------------------------------------------------
-          */
-
-        await AppBootstrap.initialize();
-
-        /*
-          |--------------------------------------------------------------------------
-          | Application Ready
-          |--------------------------------------------------------------------------
-          */
-
-        if (mounted) {
-          setIsReady(true);
-        }
-      } catch (err) {
-        console.error("Application startup failed:", err);
-
-        if (mounted) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Failed to initialize application",
-          );
-        }
-      }
-    };
-
-    void bootstrap();
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cleanup
-    |--------------------------------------------------------------------------
-    */
-
     return () => {
-      mounted = false;
-
       void AppBootstrap.shutdown();
     };
   }, []);
@@ -145,47 +102,15 @@ export default function App() {
 
   if (!isReady) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <StatusBar barStyle="light-content" />
-
-        <ActivityIndicator size="large" color="#22C55E" />
-
-        <Text style={styles.loadingTitle}>
-          Initializing Intelligent Platform
-        </Text>
-
-        <Text style={styles.loadingSubtitle}>
-          Bootstrapping Reminder Runtime, AI Assistant, Alarm Engine, Scheduler,
-          Storage, Audio Runtime, Speech Runtime, Adaptive Learning, and
-          Recovery Systems...
-        </Text>
-
-        {/* Runtime Status */}
-
-        <View style={styles.statusCard}>
-          <Text style={styles.statusItem}>• Runtime Engine</Text>
-
-          <Text style={styles.statusItem}>• Reminder Runtime</Text>
-
-          <Text style={styles.statusItem}>• Full Screen Alarm Engine</Text>
-
-          <Text style={styles.statusItem}>• Scheduler Runtime</Text>
-
-          <Text style={styles.statusItem}>• AI Assistant Runtime</Text>
-
-          <Text style={styles.statusItem}>• Notification Runtime</Text>
-
-          <Text style={styles.statusItem}>• Audio Runtime</Text>
-
-          <Text style={styles.statusItem}>• Speech Runtime</Text>
-
-          <Text style={styles.statusItem}>• SQLite Persistence</Text>
-
-          <Text style={styles.statusItem}>• Adaptive Learning</Text>
-
-          <Text style={styles.statusItem}>• Recovery Engine</Text>
-        </View>
-      </SafeAreaView>
+      <FuturisticSplashScreen
+        onFinish={(err) => {
+          if (err) {
+            setError(err);
+          } else {
+            setIsReady(true);
+          }
+        }}
+      />
     );
   }
 
@@ -211,74 +136,6 @@ export default function App() {
 */
 
 const styles = StyleSheet.create({
-  /*
-    |--------------------------------------------------------------------------
-    | Loading
-    |--------------------------------------------------------------------------
-    */
-
-  loadingContainer: {
-    flex: 1,
-
-    justifyContent: "center",
-
-    alignItems: "center",
-
-    padding: 24,
-
-    backgroundColor: "#020617",
-  },
-
-  loadingTitle: {
-    marginTop: 24,
-
-    fontSize: 24,
-
-    fontWeight: "700",
-
-    color: "#F8FAFC",
-
-    textAlign: "center",
-  },
-
-  loadingSubtitle: {
-    marginTop: 14,
-
-    fontSize: 15,
-
-    lineHeight: 25,
-
-    color: "#CBD5E1",
-
-    textAlign: "center",
-  },
-
-  /*
-    |--------------------------------------------------------------------------
-    | Runtime Status Card
-    |--------------------------------------------------------------------------
-    */
-
-  statusCard: {
-    marginTop: 36,
-
-    width: "100%",
-
-    padding: 22,
-
-    borderRadius: 18,
-
-    backgroundColor: "#111827",
-  },
-
-  statusItem: {
-    color: "#E5E7EB",
-
-    fontSize: 15,
-
-    marginBottom: 10,
-  },
-
   /*
     |--------------------------------------------------------------------------
     | Error

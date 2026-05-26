@@ -10,6 +10,7 @@ import {
 } from "react-native";
 
 import { Reminder } from "../../../core/reminders/reminder.types";
+import { useTheme } from "../../../shared/store/theme.store";
 
 /*
 |--------------------------------------------------------------------------
@@ -46,6 +47,8 @@ export default function ReminderEditSheet({
 
   onSave,
 }: Props) {
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors, isDark);
   /*
     |--------------------------------------------------------------------------
     | State
@@ -122,6 +125,7 @@ export default function ReminderEditSheet({
             value={title}
             onChangeText={setTitle}
             placeholder="Reminder title"
+            placeholderTextColor={colors.textMuted}
             style={styles.input}
           />
 
@@ -131,6 +135,7 @@ export default function ReminderEditSheet({
             value={description}
             onChangeText={setDescription}
             placeholder="Description"
+            placeholderTextColor={colors.textMuted}
             style={styles.input}
           />
 
@@ -140,6 +145,7 @@ export default function ReminderEditSheet({
             value={time}
             onChangeText={setTime}
             placeholder="09:00 AM"
+            placeholderTextColor={colors.textMuted}
             style={styles.input}
           />
 
@@ -166,23 +172,26 @@ export default function ReminderEditSheet({
 |--------------------------------------------------------------------------
 */
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   overlay: {
     flex: 1,
 
-    backgroundColor: "rgba(0,0,0,0.45)",
+    backgroundColor: isDark ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.45)",
 
     justifyContent: "flex-end",
   },
 
   sheet: {
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
 
     borderTopLeftRadius: 28,
 
     borderTopRightRadius: 28,
 
     padding: 24,
+
+    borderWidth: isDark ? 1 : 0,
+    borderColor: colors.borderLight,
   },
 
   title: {
@@ -190,7 +199,7 @@ const styles = StyleSheet.create({
 
     fontWeight: "700",
 
-    color: "#111827",
+    color: colors.textPrimary,
 
     marginBottom: 22,
   },
@@ -198,7 +207,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
 
-    borderColor: "#d1d5db",
+    borderColor: colors.border,
 
     borderRadius: 16,
 
@@ -209,6 +218,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
 
     fontSize: 16,
+
+    backgroundColor: colors.surfaceSecondary,
+
+    color: colors.textPrimary,
   },
 
   actions: {
@@ -228,13 +241,13 @@ const styles = StyleSheet.create({
   },
 
   cancelText: {
-    color: "#6b7280",
+    color: colors.textSecondary,
 
     fontWeight: "700",
   },
 
   saveButton: {
-    backgroundColor: "#2563eb",
+    backgroundColor: colors.primary,
 
     paddingHorizontal: 22,
 

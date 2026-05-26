@@ -23,7 +23,7 @@ import {
   ReminderRepeatType,
 } from "../../../core/reminders/reminder.types";
 
-import { colors } from "../../../shared/theme/colors";
+import { useTheme } from "../../../shared/store/theme.store";
 
 /*
 |--------------------------------------------------------------------------
@@ -108,6 +108,9 @@ const REPEAT_OPTIONS: ReminderRepeatType[] = [
 */
 
 export default function EditReminderScreen() {
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors, isDark);
+
   /*
   |--------------------------------------------------------------------------
   | Navigation
@@ -285,7 +288,7 @@ export default function EditReminderScreen() {
   if (!reminder) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <Text>Loading reminder...</Text>
+        <Text style={styles.loadingText}>Loading reminder...</Text>
       </SafeAreaView>
     );
   }
@@ -451,7 +454,7 @@ export default function EditReminderScreen() {
 |--------------------------------------------------------------------------
 */
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
 
@@ -470,6 +473,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
 
     justifyContent: "center",
+
+    backgroundColor: colors.background,
+  },
+
+  loadingText: {
+    color: colors.textPrimary,
+    fontSize: 16,
   },
 
   headerTitle: {
@@ -501,7 +511,7 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
 
     borderRadius: 18,
 
@@ -510,6 +520,10 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
 
     fontSize: 16,
+
+    color: colors.textPrimary,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   wrap: {
@@ -525,7 +539,7 @@ const styles = StyleSheet.create({
 
     borderRadius: 14,
 
-    backgroundColor: "#e5e7eb",
+    backgroundColor: colors.border,
 
     marginRight: 10,
 
@@ -553,13 +567,16 @@ const styles = StyleSheet.create({
 
     borderRadius: 18,
 
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
 
     flexDirection: "row",
 
     alignItems: "center",
 
     justifyContent: "space-between",
+
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   switchLabel: {

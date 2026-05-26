@@ -16,6 +16,8 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
 import { LocationService } from "../../../core/geofence/location.service";
 import { SavedLocation } from "../../../core/geofence/location.repository";
+import { useTheme } from "../../../shared/store/theme.store";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ManageLocations">;
 
@@ -33,6 +35,9 @@ type Props = NativeStackScreenProps<RootStackParamList, "ManageLocations">;
 */
 
 export default function ManageLocationsScreen({ navigation }: Props) {
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors, isDark);
+
   /*
   |--------------------------------------------------------------------------
   | State
@@ -117,7 +122,7 @@ export default function ManageLocationsScreen({ navigation }: Props) {
         {/* Icon + Info */}
         <View style={styles.cardLeft}>
           <View style={styles.iconContainer}>
-            <Text style={styles.iconText}>📍</Text>
+            <Ionicons name="location-sharp" size={22} color={colors.primary} />
           </View>
           <View style={styles.cardInfo}>
             <Text style={styles.locationName} numberOfLines={1}>
@@ -142,9 +147,9 @@ export default function ManageLocationsScreen({ navigation }: Props) {
           disabled={isDeleting}
         >
           {isDeleting ? (
-            <ActivityIndicator size="small" color="#ef4444" />
+            <ActivityIndicator size="small" color={colors.danger} />
           ) : (
-            <Text style={styles.deleteIcon}>🗑️</Text>
+            <Ionicons name="trash-outline" size={18} color={colors.danger} />
           )}
         </Pressable>
       </View>
@@ -159,7 +164,7 @@ export default function ManageLocationsScreen({ navigation }: Props) {
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyEmoji}>🗺️</Text>
+      <Ionicons name="map-outline" size={60} color={colors.textMuted} style={{ marginBottom: 20 }} />
       <Text style={styles.emptyTitle}>No Saved Locations</Text>
       <Text style={styles.emptyDescription}>
         When you ask the assistant to create a location-based reminder, your saved locations will appear here.
@@ -181,7 +186,7 @@ export default function ManageLocationsScreen({ navigation }: Props) {
           style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backIcon}>←</Text>
+          <Ionicons name="chevron-back" size={24} color={colors.textPrimary} />
         </Pressable>
         <View style={styles.headerTexts}>
           <Text style={styles.headerTitle}>Saved Locations</Text>
@@ -195,7 +200,7 @@ export default function ManageLocationsScreen({ navigation }: Props) {
 
       {/* Info Banner */}
       <View style={styles.infoBanner}>
-        <Text style={styles.infoBannerEmoji}>💡</Text>
+        <Ionicons name="bulb-outline" size={18} color={colors.primary} style={{ marginRight: 10 }} />
         <Text style={styles.infoBannerText}>
           These locations trigger your smart reminders when you arrive or leave.
         </Text>
@@ -204,7 +209,7 @@ export default function ManageLocationsScreen({ navigation }: Props) {
       {/* Location List */}
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#2563eb" />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>Loading locations...</Text>
         </View>
       ) : (
@@ -222,7 +227,7 @@ export default function ManageLocationsScreen({ navigation }: Props) {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#2563eb"
+              tintColor={colors.primary}
             />
           }
         />
@@ -237,10 +242,10 @@ export default function ManageLocationsScreen({ navigation }: Props) {
 |--------------------------------------------------------------------------
 */
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f4f7fb",
+    backgroundColor: colors.background,
   },
 
   /*
@@ -257,13 +262,13 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOpacity: isDark ? 0.3 : 0.06,
     shadowRadius: 6,
     elevation: 2,
   },
@@ -273,7 +278,7 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 20,
-    color: "#111827",
+    color: colors.textPrimary,
     fontWeight: "700",
   },
   headerTexts: {
@@ -282,12 +287,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 26,
     fontWeight: "800",
-    color: "#111827",
+    color: colors.textPrimary,
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 13,
-    color: "#6b7280",
+    color: colors.textSecondary,
     marginTop: 2,
   },
 
@@ -300,10 +305,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginBottom: 16,
     padding: 14,
-    backgroundColor: "#eff6ff",
+    backgroundColor: isDark ? "rgba(59, 130, 246, 0.12)" : "#eff6ff",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#bfdbfe",
+    borderColor: isDark ? "rgba(59, 130, 246, 0.3)" : "#bfdbfe",
   },
   infoBannerEmoji: {
     fontSize: 18,
@@ -312,7 +317,7 @@ const styles = StyleSheet.create({
   infoBannerText: {
     flex: 1,
     fontSize: 13,
-    color: "#1d4ed8",
+    color: colors.primary,
     lineHeight: 19,
     fontWeight: "500",
   },
@@ -335,13 +340,13 @@ const styles = StyleSheet.create({
   locationCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
     borderRadius: 20,
     padding: 16,
     marginBottom: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOpacity: isDark ? 0.2 : 0.06,
     shadowRadius: 8,
     elevation: 3,
   },
@@ -354,7 +359,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 16,
-    backgroundColor: "#eff6ff",
+    backgroundColor: colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -368,26 +373,26 @@ const styles = StyleSheet.create({
   locationName: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
+    color: colors.textPrimary,
     letterSpacing: -0.2,
   },
   locationCoords: {
     fontSize: 12,
-    color: "#9ca3af",
+    color: colors.textMuted,
     marginTop: 3,
     fontFamily: "monospace",
   },
   radiusTag: {
     marginTop: 6,
     alignSelf: "flex-start",
-    backgroundColor: "#f0fdf4",
+    backgroundColor: isDark ? "rgba(16, 185, 129, 0.12)" : "#f0fdf4",
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
   },
   radiusText: {
     fontSize: 11,
-    color: "#16a34a",
+    color: colors.success,
     fontWeight: "600",
   },
 
@@ -398,7 +403,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: "#fef2f2",
+    backgroundColor: isDark ? "rgba(239, 68, 68, 0.12)" : "#fef2f2",
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 12,
@@ -422,7 +427,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 15,
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
 
   /*
@@ -440,13 +445,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 22,
     fontWeight: "800",
-    color: "#111827",
+    color: colors.textPrimary,
     marginBottom: 12,
     letterSpacing: -0.4,
   },
   emptyDescription: {
     fontSize: 15,
-    color: "#6b7280",
+    color: colors.textSecondary,
     textAlign: "center",
     lineHeight: 23,
   },

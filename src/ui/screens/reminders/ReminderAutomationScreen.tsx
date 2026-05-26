@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { useTheme } from "../../../shared/store/theme.store";
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +42,9 @@ type AutomationRule = {
 */
 
 export default function ReminderAutomationScreen() {
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors, isDark);
+
   /*
   |--------------------------------------------------------------------------
   | State
@@ -244,11 +248,11 @@ export default function ReminderAutomationScreen() {
 |--------------------------------------------------------------------------
 */
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   container: {
     flex: 1,
 
-    backgroundColor: "#f4f7fb",
+    backgroundColor: colors.background,
   },
 
   scrollContent: {
@@ -266,7 +270,7 @@ const styles = StyleSheet.create({
 
     fontWeight: "700",
 
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   headerSubtitle: {
@@ -274,7 +278,7 @@ const styles = StyleSheet.create({
 
     fontSize: 15,
 
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
 
   runtimeCard: {
@@ -282,7 +286,7 @@ const styles = StyleSheet.create({
 
     marginTop: 20,
 
-    backgroundColor: "#2563eb",
+    backgroundColor: colors.primary,
 
     borderRadius: 26,
 
@@ -342,13 +346,13 @@ const styles = StyleSheet.create({
 
     fontWeight: "700",
 
-    color: "#111827",
+    color: colors.textPrimary,
 
     marginBottom: 18,
   },
 
   ruleCard: {
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
 
     borderRadius: 22,
 
@@ -361,6 +365,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
 
     justifyContent: "space-between",
+
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   ruleContent: {
@@ -374,7 +381,7 @@ const styles = StyleSheet.create({
 
     fontWeight: "700",
 
-    color: "#111827",
+    color: colors.textPrimary,
   },
 
   ruleDescription: {
@@ -382,7 +389,7 @@ const styles = StyleSheet.create({
 
     lineHeight: 22,
 
-    color: "#6b7280",
+    color: colors.textSecondary,
   },
 
   optimizationCard: {
@@ -394,7 +401,9 @@ const styles = StyleSheet.create({
 
     padding: 22,
 
-    backgroundColor: "#111827",
+    backgroundColor: isDark ? colors.surfaceSecondary : "#0f172a",
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 
   optimizationTitle: {
@@ -410,7 +419,7 @@ const styles = StyleSheet.create({
 
     lineHeight: 24,
 
-    color: "rgba(255,255,255,0.85)",
+    color: isDark ? colors.textSecondary : "rgba(255,255,255,0.85)",
   },
 
   testButton: {
@@ -418,7 +427,7 @@ const styles = StyleSheet.create({
 
     marginTop: 24,
 
-    backgroundColor: "#2563eb",
+    backgroundColor: colors.primary,
 
     borderRadius: 18,
 
