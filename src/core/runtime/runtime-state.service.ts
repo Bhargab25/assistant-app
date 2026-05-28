@@ -21,7 +21,12 @@ export type WorkflowRuntimeState =
     | "retry_pending"
     | "completed"
     | "failed"
-    | "cancelled";
+    | "cancelled"
+    | "pending"
+    | "queued"
+    | "snoozed"
+    | "skipped"
+    | "rescheduled";
 
 /*
 |--------------------------------------------------------------------------

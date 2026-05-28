@@ -18,7 +18,7 @@ import { ReminderService } from "../../../core/reminders/reminder.service";
 
 import { Reminder } from "../../../core/reminders/reminder.types";
 
-import { RootStackParamList } from "../../navigation/AppNavigator";
+import { RootStackParamList } from "../../navigation/types";
 
 /*
 |--------------------------------------------------------------------------

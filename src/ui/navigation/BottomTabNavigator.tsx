@@ -42,25 +42,11 @@ import ReminderAutomationScreen from "../screens/reminders/ReminderAutomationScr
 
 import SettingsScreen from "../screens/settings/SettingsScreen";
 
+import AssistantChatScreen from "../screens/assistant/AssistantChatScreen";
+
 import { useTheme } from "../../shared/store/theme.store";
 
-/*
-|--------------------------------------------------------------------------
-| Tab Navigator
-|--------------------------------------------------------------------------
-*/
-
-export type BottomTabParamList = {
-  Dashboard: undefined;
-
-  Reminders: undefined;
-
-  Analytics: undefined;
-
-  Automation: undefined;
-
-  Settings: undefined;
-};
+import { BottomTabParamList } from "./types";
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -86,6 +72,8 @@ export default function BottomTabNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
+
+        tabBarHideOnKeyboard: true,
 
         tabBarStyle: {
           height: 74,
@@ -129,6 +117,24 @@ export default function BottomTabNavigator() {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "alarm" : "alarm-outline"}
+              size={22}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      {/* Assistant */}
+
+      <Tab.Screen
+        name="AssistantChat"
+        component={AssistantChatScreen}
+        options={{
+          title: "AI Chat",
+
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "chatbubble-ellipses" : "chatbubble-ellipses-outline"}
               size={22}
               color={color}
             />

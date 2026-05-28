@@ -6,7 +6,7 @@ import {
 
 import {
     RootStackParamList,
-} from "./AppNavigator";
+} from "./types";
 
 import {
     logInfo,
@@ -113,8 +113,8 @@ export class NavigationService {
             */
 
             navigationRef.navigate(
-                screen,
-                params
+                screen as any,
+                params as any
             );
 
             logInfo(

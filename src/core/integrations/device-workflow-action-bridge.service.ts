@@ -1,5 +1,8 @@
 // src/core/integrations/device-workflow-action-bridge.service.ts
 
+import * as Brightness from "expo-brightness";
+import { Vibration, Platform } from "react-native";
+
 import {
     WorkflowExecutionStep,
 } from "../workflows/workflow-execution-planner.service";
@@ -40,6 +43,7 @@ import {
 | IMPORTANT:
 | This becomes the REAL
 | action execution bridge.
+|
 |
 */
 
@@ -132,6 +136,39 @@ export class DeviceWorkflowActionBridgeService {
 
                 case "custom":
                     return await this.custom(
+                        step
+                    );
+
+                /*
+                |--------------------------------------------------------------------------
+                | Display Brightness
+                |--------------------------------------------------------------------------
+                */
+
+                case "set_brightness":
+                    return await this.setBrightness(
+                        step
+                    );
+
+                /*
+                |--------------------------------------------------------------------------
+                | Silent Mode
+                |--------------------------------------------------------------------------
+                */
+
+                case "set_silent":
+                    return await this.setSilent(
+                        step
+                    );
+
+                /*
+                |--------------------------------------------------------------------------
+                | Vibration
+                |--------------------------------------------------------------------------
+                */
+
+                case "vibrate":
+                    return await this.vibrate(
                         step
                     );
 
@@ -330,6 +367,101 @@ export class DeviceWorkflowActionBridgeService {
 
             config:
                 step.config,
+        };
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Set Brightness Action
+    |--------------------------------------------------------------------------
+    */
+
+    private static async setBrightness(
+        step: WorkflowExecutionStep
+    ): Promise<unknown> {
+        const brightness = Number(step.config.brightness ?? 0.5);
+        let simulated = false;
+        try {
+            const { status } = await Brightness.requestPermissionsAsync();
+            if (status === "granted") {
+                if (Platform.OS === 'android') {
+                    try {
+                        await Brightness.setSystemBrightnessAsync(brightness);
+                        logInfo("System display brightness adjusted via expo-brightness", { brightness });
+                    } catch (sysError) {
+                        logWarn("Failed to set system brightness on Android, falling back to window brightness", { error: sysError, brightness });
+                        await Brightness.setBrightnessAsync(brightness);
+                    }
+                } else {
+                    await Brightness.setBrightnessAsync(brightness);
+                    logInfo("Display brightness adjusted via expo-brightness", { brightness });
+                }
+            } else {
+                simulated = true;
+                logWarn("Brightness permission not granted, simulating brightness adjustment", { brightness });
+            }
+        } catch (error) {
+            simulated = true;
+            logWarn("Failed to adjust brightness, falling back to simulation", { error, brightness });
+        }
+        return {
+            type: "set_brightness",
+            brightness,
+            simulated,
+        };
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Set Silent Action
+    |--------------------------------------------------------------------------
+    */
+
+    private static async setSilent(
+        step: WorkflowExecutionStep
+    ): Promise<unknown> {
+        const silent = Boolean(step.config.silent ?? true);
+        let simulated = false;
+        try {
+            if (silent) {
+                await DeviceAudioService.setVolume(0);
+                logInfo("Device audio muted via DeviceAudioService");
+            } else {
+                await DeviceAudioService.setVolume(1);
+                logInfo("Device audio unmuted via DeviceAudioService");
+            }
+        } catch (error) {
+            simulated = true;
+            logWarn("Failed to toggle silent mode, simulating", { error, silent });
+        }
+        return {
+            type: "set_silent",
+            silent,
+            simulated,
+        };
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Vibrate Action
+    |--------------------------------------------------------------------------
+    */
+
+    private static async vibrate(
+        step: WorkflowExecutionStep
+    ): Promise<unknown> {
+        let simulated = false;
+        try {
+            Vibration.vibrate();
+            logInfo("Triggered haptic vibration feedback");
+        } catch (error) {
+            simulated = true;
+            logWarn("Vibration failed, simulating", { error });
+        }
+        return {
+            type: "vibrate",
+            status: "done",
+            simulated,
         };
     }
 }

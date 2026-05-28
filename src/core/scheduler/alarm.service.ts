@@ -335,7 +335,7 @@ export class AlarmService {
                     minute: 0,
 
                     repeats: true,
-                };
+                } as any;
 
             default:
                 return null;

@@ -165,6 +165,8 @@ export type Reminder =
     {
         id: string;
 
+        notificationId?: string;
+
         title: string;
 
         description?: string;

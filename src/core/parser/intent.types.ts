@@ -22,6 +22,9 @@ export type IntentType =
     | "followup_reminder"
     | "habit_reminder"
     | "medicine_reminder"
+    | "brightness_adjustment"
+    | "silent_mode"
+    | "smart_routine"
     | "unknown";
 
 /*
@@ -153,6 +156,53 @@ export type MedicineReminderIntent =
 |--------------------------------------------------------------------------
 */
 
+export type BrightnessAdjustmentIntent =
+    ParsedIntent & {
+        intent: "brightness_adjustment";
+
+        brightnessLevel: number; // 0 to 1
+
+        time?: string;
+
+        locationName?: string;
+
+        immediate?: boolean;
+    };
+
+export type SilentModeIntent =
+    ParsedIntent & {
+        intent: "silent_mode";
+
+        silentEnabled: boolean;
+
+        vibrateEnabled: boolean;
+
+        time?: string;
+
+        locationName?: string;
+
+        immediate?: boolean;
+    };
+
+export type SmartRoutineIntent =
+    ParsedIntent & {
+        intent: "smart_routine";
+
+        routineName: string;
+
+        brightnessLevel?: number;
+
+        silentEnabled?: boolean;
+
+        vibrateEnabled?: boolean;
+
+        locationName?: string;
+
+        time?: string;
+
+        immediate?: boolean;
+    };
+
 export type UnknownIntent =
     ParsedIntent & {
         intent: "unknown";
@@ -172,4 +222,7 @@ export type Intent =
     | FollowUpReminderIntent
     | HabitReminderIntent
     | MedicineReminderIntent
+    | BrightnessAdjustmentIntent
+    | SilentModeIntent
+    | SmartRoutineIntent
     | UnknownIntent;

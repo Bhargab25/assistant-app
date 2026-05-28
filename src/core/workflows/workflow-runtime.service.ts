@@ -108,10 +108,50 @@ export class WorkflowRuntimeService {
             |--------------------------------------------------------------------------
             */
 
-            const workflow =
+            let workflow =
                 WorkflowDefinitionService.findById(
                     workflowId
                 );
+
+            if (!workflow) {
+                try {
+                    const { WorkflowRepository } = require("../storage/workflow.repository");
+                    const dbWorkflow = await WorkflowRepository.findById(workflowId);
+                    if (dbWorkflow) {
+                        workflow = {
+                            id: dbWorkflow.id,
+                            name: dbWorkflow.name,
+                            enabled: dbWorkflow.enabled,
+                            trigger: (dbWorkflow.trigger.type === "time" ? "schedule" :
+                                     dbWorkflow.trigger.type === "interval" ? "schedule" :
+                                     (dbWorkflow.trigger.type === "geofence_enter" || dbWorkflow.trigger.type === "geofence_exit") ? "event" : "manual") as any,
+                            schedule: dbWorkflow.trigger.type === "interval"
+                                ? String(dbWorkflow.trigger.everyMinutes * 60 * 1000)
+                                : (dbWorkflow.trigger.type === "time" ? dbWorkflow.trigger.time : undefined),
+                            actions: dbWorkflow.actions.map((act: any, idx: number) => ({
+                                id: act.id || `${dbWorkflow.id}_action_${idx}`,
+                                type: (act.type === "notify" ? "notification" :
+                                      act.type === "ask" ? "notification" :
+                                      act.type === "set_brightness" ? "set_brightness" :
+                                      act.type === "set_silent" ? "set_silent" :
+                                      act.type === "vibrate" ? "vibrate" : "custom") as any,
+                                name: act.name || `Action ${idx}`,
+                                enabled: act.enabled !== false,
+                                config: act.type === "notify" ? { title: act.title, body: act.message } :
+                                        act.type === "ask" ? { title: "Question", body: act.question } :
+                                        act.type === "set_brightness" ? { brightness: act.config.brightness } :
+                                        act.type === "set_silent" ? { silent: act.config.silent } :
+                                        act.type === "vibrate" ? (act.config || {}) : {},
+                            })),
+                            createdAt: new Date(dbWorkflow.createdAt).getTime(),
+                            updatedAt: new Date(dbWorkflow.updatedAt).getTime(),
+                        };
+                        WorkflowDefinitionService.register(workflow);
+                    }
+                } catch (dbError) {
+                    logWarn("Database fallback lookup for workflow failed", { workflowId, error: dbError });
+                }
+            }
 
             if (!workflow) {
                 throw new Error(

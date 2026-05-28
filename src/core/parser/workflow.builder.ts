@@ -6,6 +6,9 @@ import {
     IntervalReminderIntent,
     LocationReminderIntent,
     FollowUpReminderIntent,
+    BrightnessAdjustmentIntent,
+    SilentModeIntent,
+    SmartRoutineIntent,
 } from "./intent.types";
 
 import { Workflow } from "../workflows/types";
@@ -82,6 +85,21 @@ export class WorkflowBuilder {
             case "followup_reminder":
                 return this.buildFollowupReminder(
                     intent
+                );
+
+            case "brightness_adjustment":
+                return this.buildBrightnessAdjustment(
+                    intent as BrightnessAdjustmentIntent
+                );
+
+            case "silent_mode":
+                return this.buildSilentMode(
+                    intent as SilentModeIntent
+                );
+
+            case "smart_routine":
+                return this.buildSmartRoutine(
+                    intent as SmartRoutineIntent
                 );
 
             default:
@@ -263,6 +281,143 @@ export class WorkflowBuilder {
     |--------------------------------------------------------------------------
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Build Brightness Adjustment
+    |--------------------------------------------------------------------------
+    */
+
+    static buildBrightnessAdjustment(
+        intent: BrightnessAdjustmentIntent
+    ): Workflow {
+        const trigger = intent.time
+            ? { type: "time", time: intent.time }
+            : intent.locationName
+                ? { type: "geofence_enter", locationId: intent.locationName }
+                : { type: "manual" };
+
+        return WorkflowFactory.create({
+            name: `Brightness Adjustment (${Math.round(intent.brightnessLevel * 100)}%)`,
+            trigger: trigger as any,
+            actions: [
+                {
+                    id: Math.random().toString(36).substring(7),
+                    type: "set_brightness",
+                    name: "Set Display Brightness",
+                    enabled: true,
+                    config: {
+                        brightness: intent.brightnessLevel,
+                    },
+                } as any,
+            ],
+            state: "idle",
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Build Silent Mode
+    |--------------------------------------------------------------------------
+    */
+
+    static buildSilentMode(
+        intent: SilentModeIntent
+    ): Workflow {
+        const trigger = intent.time
+            ? { type: "time", time: intent.time }
+            : intent.locationName
+                ? { type: "geofence_enter", locationId: intent.locationName }
+                : { type: "manual" };
+
+        const actions: any[] = [
+            {
+                id: Math.random().toString(36).substring(7),
+                type: "set_silent",
+                name: "Toggle Silent Mode",
+                enabled: true,
+                config: {
+                    silent: intent.silentEnabled,
+                },
+            }
+        ];
+
+        if (intent.vibrateEnabled) {
+            actions.push({
+                id: Math.random().toString(36).substring(7),
+                type: "vibrate",
+                name: "Trigger Haptic Vibration",
+                enabled: true,
+                config: {},
+            });
+        }
+
+        return WorkflowFactory.create({
+            name: `Silent Mode (${intent.silentEnabled ? "On" : "Off"})`,
+            trigger: trigger as any,
+            actions: actions as any,
+            state: "idle",
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Build Smart Routine
+    |--------------------------------------------------------------------------
+    */
+
+    static buildSmartRoutine(
+        intent: SmartRoutineIntent
+    ): Workflow {
+        const trigger = intent.time
+            ? { type: "time", time: intent.time }
+            : intent.locationName
+                ? { type: "geofence_enter", locationId: intent.locationName }
+                : { type: "manual" };
+
+        const actions = [];
+
+        if (intent.silentEnabled !== undefined) {
+            actions.push({
+                id: Math.random().toString(36).substring(7),
+                type: "set_silent",
+                name: "Toggle Silent Mode",
+                enabled: true,
+                config: {
+                    silent: intent.silentEnabled,
+                },
+            });
+        }
+
+        if (intent.brightnessLevel !== undefined) {
+            actions.push({
+                id: Math.random().toString(36).substring(7),
+                type: "set_brightness",
+                name: "Set Display Brightness",
+                enabled: true,
+                config: {
+                    brightness: intent.brightnessLevel,
+                },
+            });
+        }
+
+        if (intent.vibrateEnabled) {
+            actions.push({
+                id: Math.random().toString(36).substring(7),
+                type: "vibrate",
+                name: "Trigger Haptic Vibration",
+                enabled: true,
+                config: {},
+            });
+        }
+
+        return WorkflowFactory.create({
+            name: `Smart Routine - ${intent.routineName.replace("_", " ")}`,
+            trigger: trigger as any,
+            actions: actions as any,
+            state: "idle",
+        });
+    }
+
     static supports(
         intent: Intent
     ): boolean {
@@ -274,6 +429,12 @@ export class WorkflowBuilder {
             "location_reminder",
 
             "followup_reminder",
+
+            "brightness_adjustment",
+
+            "silent_mode",
+
+            "smart_routine",
         ].includes(intent.intent);
     }
 }

@@ -147,6 +147,94 @@ export const PARSER_EXAMPLES = [
             "medicine_reminder",
     },
 
+    {
+        input:
+            "set display brightness to 80% at 9 PM",
+
+        expectedIntent:
+            "brightness_adjustment",
+    },
+
+    {
+        input:
+            "bajar el brillo al 20%",
+
+        expectedIntent:
+            "brightness_adjustment",
+    },
+
+    {
+        input:
+            "mettre la luminosité à 50% au gymnase",
+
+        expectedIntent:
+            "brightness_adjustment",
+    },
+
+    {
+        input:
+            "helligkeit auf 10% am abend",
+
+        expectedIntent:
+            "brightness_adjustment",
+    },
+
+    {
+        input:
+            "poner en silencio a las 3 PM",
+
+        expectedIntent:
+            "silent_mode",
+    },
+
+    {
+        input:
+            "activar vibrar cuando llegue a casa",
+
+        expectedIntent:
+            "silent_mode",
+    },
+
+    {
+        input:
+            "silence the phone when I enter office",
+
+        expectedIntent:
+            "silent_mode",
+    },
+
+    {
+        input:
+            "stummmodus aktivieren",
+
+        expectedIntent:
+            "silent_mode",
+    },
+
+    {
+        input:
+            "when I enter gym, silent mode and 100% brightness",
+
+        expectedIntent:
+            "smart_routine",
+    },
+
+    {
+        input:
+            "rutina de mañana",
+
+        expectedIntent:
+            "smart_routine",
+    },
+
+    {
+        input:
+            "gym routine",
+
+        expectedIntent:
+            "smart_routine",
+    },
+
     /*
     |--------------------------------------------------------------------------
     | Unknown Inputs

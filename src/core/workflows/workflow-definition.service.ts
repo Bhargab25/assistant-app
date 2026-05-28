@@ -151,6 +151,26 @@ export class WorkflowDefinitionService {
 
     /*
     |--------------------------------------------------------------------------
+    | Register Workflow Definition
+    |--------------------------------------------------------------------------
+    */
+
+    static register(
+        workflow: WorkflowDefinition
+    ): void {
+        const index = this.workflows.findIndex(
+            (w) => w.id === workflow.id
+        );
+
+        if (index !== -1) {
+            this.workflows[index] = workflow;
+        } else {
+            this.workflows.push(workflow);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Create Workflow
     |--------------------------------------------------------------------------
     */

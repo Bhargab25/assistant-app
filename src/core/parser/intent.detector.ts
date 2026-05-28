@@ -48,6 +48,43 @@ export class IntentDetector {
 
         /*
         |--------------------------------------------------------------------------
+        | Intention Keywords Identification
+        |--------------------------------------------------------------------------
+        */
+        const isBrightness = 
+            normalized.includes("brightness") || normalized.includes("dim") || normalized.includes("brighten") ||
+            normalized.includes("brillo") ||
+            normalized.includes("luminosité") ||
+            normalized.includes("helligkeit");
+
+        const isSilent = 
+            normalized.includes("silent") || normalized.includes("silence") || normalized.includes("vibrate") || normalized.includes("mute") ||
+            normalized.includes("silencio") || normalized.includes("silenciar") || normalized.includes("vibrar") || normalized.includes("mutear") ||
+            normalized.includes("silencieux") || normalized.includes("silenceur") || normalized.includes("vibreur") || normalized.includes("muet") ||
+            normalized.includes("lautlos") || normalized.includes("vibrieren") || normalized.includes("stumm");
+
+        const isRoutine = 
+            normalized.includes("routine") || normalized.includes("rutina") || (isBrightness && isSilent);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Intent Classification Precedence
+        |--------------------------------------------------------------------------
+        */
+        if (isRoutine) {
+            return this.detectSmartRoutine(input);
+        }
+
+        if (isBrightness) {
+            return this.detectBrightnessAdjustment(input);
+        }
+
+        if (isSilent) {
+            return this.detectSilentMode(input);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
         | Unknown Check (general queries that aren't reminders)
         |--------------------------------------------------------------------------
         */
@@ -56,7 +93,15 @@ export class IntentDetector {
                          normalized.includes("alert") ||
                          normalized.includes("notify") ||
                          normalized.includes("take") ||
-                         normalized.includes("do");
+                         normalized.includes("do") ||
+                         normalized.includes("recuerda") ||
+                         normalized.includes("recordatorio") ||
+                         normalized.includes("alerta") ||
+                         normalized.includes("notificar") ||
+                         normalized.includes("erinnere") ||
+                         normalized.includes("erinnerung") ||
+                         normalized.includes("rappelle") ||
+                         normalized.includes("rappel");
 
         if (!isRemind && (
             normalized.includes("weather") ||
@@ -559,8 +604,166 @@ export class IntentDetector {
             case "medicine_reminder":
                 return "Medicine Reminder";
 
+            case "brightness_adjustment":
+                return "Brightness Adjustment";
+
+            case "silent_mode":
+                return "Silent Mode";
+
+            case "smart_routine":
+                return "Smart Routine";
+
             default:
                 return "Unknown";
         }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Detect Brightness Adjustment
+    |--------------------------------------------------------------------------
+    */
+
+    static detectBrightnessAdjustment(input: string): Intent {
+        const normalized = input.toLowerCase();
+        let brightnessLevel = 0.5; // default medium
+
+        const percentMatch = normalized.match(/(\d+)\s*%/);
+        if (percentMatch) {
+            brightnessLevel = Number(percentMatch[1]) / 100;
+        } else {
+            if (normalized.includes("dim") || normalized.includes("low") || normalized.includes("bajo") || normalized.includes("bas") || normalized.includes("niedrig")) {
+                brightnessLevel = 0.15;
+            } else if (normalized.includes("max") || normalized.includes("high") || normalized.includes("alto") || normalized.includes("haut") || normalized.includes("hoch")) {
+                brightnessLevel = 1.0;
+            } else if (normalized.includes("medium") || normalized.includes("medio") || normalized.includes("moyen") || normalized.includes("mittel")) {
+                brightnessLevel = 0.5;
+            }
+        }
+
+        const parsedDate = chrono.parseDate(input);
+        const locationName = this.extractLocationName(input);
+        const isImmediate = 
+            normalized.includes("now") || 
+            normalized.includes("immediately") ||
+            normalized.includes("ahora") || 
+            normalized.includes("inmediatamente") ||
+            normalized.includes("maintenant") || 
+            normalized.includes("tout de suite") ||
+            normalized.includes("jetzt") || 
+            normalized.includes("sofort");
+
+        return {
+            intent: "brightness_adjustment",
+            confidence: 0.9,
+            originalText: input,
+            brightnessLevel,
+            time: (parsedDate && !isImmediate) ? parsedDate.toISOString() : undefined,
+            locationName: locationName !== "unknown" ? locationName : undefined,
+            immediate: isImmediate || undefined,
+        };
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Detect Silent Mode
+    |--------------------------------------------------------------------------
+    */
+
+    static detectSilentMode(input: string): Intent {
+        const normalized = input.toLowerCase();
+        let silentEnabled = true;
+        let vibrateEnabled = false;
+
+        if (
+            normalized.includes("off") || 
+            normalized.includes("desactivar") || 
+            normalized.includes("désactiver") || 
+            normalized.includes("aus") ||
+            normalized.includes("disable") ||
+            normalized.includes("unmute")
+        ) {
+            silentEnabled = false;
+        }
+
+        if (
+            normalized.includes("vibrate") || 
+            normalized.includes("vibrar") || 
+            normalized.includes("vibreur") || 
+            normalized.includes("vibrieren")
+        ) {
+            vibrateEnabled = true;
+        }
+
+        const parsedDate = chrono.parseDate(input);
+        const locationName = this.extractLocationName(input);
+        const isImmediate = 
+            normalized.includes("now") || 
+            normalized.includes("immediately") ||
+            normalized.includes("ahora") || 
+            normalized.includes("inmediatamente") ||
+            normalized.includes("maintenant") || 
+            normalized.includes("tout de suite") ||
+            normalized.includes("jetzt") || 
+            normalized.includes("sofort");
+
+        return {
+            intent: "silent_mode",
+            confidence: 0.9,
+            originalText: input,
+            silentEnabled,
+            vibrateEnabled,
+            time: (parsedDate && !isImmediate) ? parsedDate.toISOString() : undefined,
+            locationName: locationName !== "unknown" ? locationName : undefined,
+            immediate: isImmediate || undefined,
+        };
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Detect Smart Routine
+    |--------------------------------------------------------------------------
+    */
+
+    static detectSmartRoutine(input: string): Intent {
+        const normalized = input.toLowerCase();
+        let routineName = "custom_routine";
+
+        if (normalized.includes("gym") || normalized.includes("gimnasio") || normalized.includes("sport")) {
+            routineName = "gym_routine";
+        } else if (normalized.includes("morning") || normalized.includes("mañana") || normalized.includes("matin") || normalized.includes("morgen")) {
+            routineName = "morning_routine";
+        } else if (normalized.includes("focus") || normalized.includes("work") || normalized.includes("trabajo") || normalized.includes("travail") || normalized.includes("arbeit")) {
+            routineName = "focus_routine";
+        }
+
+        let brightnessLevel = normalized.includes("brightness") || normalized.includes("brillo") || normalized.includes("helligkeit") ? 0.8 : undefined;
+        let silentEnabled = normalized.includes("silent") || normalized.includes("silencio") || normalized.includes("lautlos") ? true : undefined;
+        let vibrateEnabled = normalized.includes("vibrate") || normalized.includes("vibrar") || normalized.includes("vibrieren") ? true : undefined;
+
+        const parsedDate = chrono.parseDate(input);
+        const locationName = this.extractLocationName(input);
+        const isImmediate = 
+            normalized.includes("now") || 
+            normalized.includes("immediately") ||
+            normalized.includes("ahora") || 
+            normalized.includes("inmediatamente") ||
+            normalized.includes("maintenant") || 
+            normalized.includes("tout de suite") ||
+            normalized.includes("jetzt") || 
+            normalized.includes("sofort");
+
+        return {
+            intent: "smart_routine",
+            confidence: 0.95,
+            originalText: input,
+            routineName,
+            brightnessLevel,
+            silentEnabled,
+            vibrateEnabled,
+            locationName: locationName !== "unknown" ? locationName : undefined,
+            time: (parsedDate && !isImmediate) ? parsedDate.toISOString() : undefined,
+            immediate: isImmediate || undefined,
+        };
     }
 }

@@ -13,6 +13,10 @@ import {
 } from "../runtime/runtime-event.store";
 
 import {
+    DeviceUsageMonitorService,
+} from "../integrations/device-usage-monitor.service";
+
+import {
     logInfo,
 } from "../../shared/utils";
 
@@ -278,6 +282,59 @@ export class RecommendationEngineService {
 
                 generatedAt:
                     Date.now(),
+            });
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Device Activity & Usage Pattern Matching
+        |--------------------------------------------------------------------------
+        */
+
+        const metrics = DeviceUsageMonitorService.getMetricsSync();
+
+        // 1. Late-night high brightness pattern: active at night (>= 22:00 or <= 01:00) with brightness >= 0.7
+        const lateNightHighBrightness = metrics.filter(
+            (m) => (m.hour >= 22 || m.hour <= 1) && m.appState === "active" && m.brightness >= 0.7
+        );
+        if (lateNightHighBrightness.length >= 3) {
+            recommendations.push({
+                id: "dim-display-late-night",
+                type: "optimization",
+                title: "Dim Display at Night",
+                description: "You use high brightness late at night. Let's schedule a routine to automatically dim the display to 15% at 10:00 PM.",
+                confidence: 88,
+                generatedAt: Date.now(),
+            });
+        }
+
+        // 2. Morning silent mode pattern: volume is muted (0.0) between 8 AM and 11 AM
+        const silentMorning = metrics.filter(
+            (m) => m.hour >= 8 && m.hour <= 11 && m.volume === 0
+        );
+        if (silentMorning.length >= 3) {
+            recommendations.push({
+                id: "schedule-silent-mode-morning",
+                type: "timing",
+                title: "Schedule Silent Mode",
+                description: "You frequently silence your device in the morning. Let's schedule silent mode automatically from 9:00 AM to 11:00 AM.",
+                confidence: 85,
+                generatedAt: Date.now(),
+            });
+        }
+
+        // 3. Location-based gym routine pattern: user is at the "gym" location
+        const gymVisits = metrics.filter(
+            (m) => m.location === "gym"
+        );
+        if (gymVisits.length >= 3) {
+            recommendations.push({
+                id: "gym-routine-suggestion",
+                type: "workflow",
+                title: "Activate Gym Routine",
+                description: "You visit the gym frequently. Would you like to automate silencing your phone and adjusting brightness when entering the gym?",
+                confidence: 90,
+                generatedAt: Date.now(),
             });
         }
 

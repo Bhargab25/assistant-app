@@ -1,8 +1,8 @@
 // src/index.ts
 
 import {
-    bootstrap,
-} from "./app/bootstrap";
+    AppBootstrap,
+} from "./core/app/bootstrap";
 
 import {
     logInfo,
@@ -39,7 +39,7 @@ async function start():
         |--------------------------------------------------------------------------
         */
 
-        await bootstrap();
+        await AppBootstrap.initialize();
 
         logInfo(
             "Platform started successfully"

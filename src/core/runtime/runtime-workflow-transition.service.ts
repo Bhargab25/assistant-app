@@ -22,10 +22,14 @@ import {
 */
 
 export type WorkflowExecutionState =
+    | "idle"
+    | "scheduled"
+    | "triggered"
     | "pending"
     | "queued"
     | "executing"
     | "waiting_response"
+    | "retry_pending"
     | "completed"
     | "failed"
     | "cancelled"
@@ -90,7 +94,7 @@ export type WorkflowTransitionResult =
 | This becomes the FOUNDATION
 | state machine layer.
 |
-*/
+| */
 
 export class RuntimeWorkflowTransitionService {
     /*
@@ -104,6 +108,28 @@ export class RuntimeWorkflowTransitionService {
             WorkflowExecutionState,
             WorkflowExecutionState[]
         > = {
+            idle: [
+                "queued",
+                "executing",
+                "scheduled",
+            ],
+
+            scheduled: [
+                "triggered",
+                "queued",
+                "executing",
+            ],
+
+            triggered: [
+                "queued",
+                "executing",
+            ],
+
+            retry_pending: [
+                "queued",
+                "executing",
+            ],
+
             pending: [
                 "queued",
                 "cancelled",
@@ -170,7 +196,7 @@ export class RuntimeWorkflowTransitionService {
             */
 
             const current =
-                RuntimeStateService.get(
+                RuntimeStateService.findByWorkflow(
                     payload.workflowId
                 );
 

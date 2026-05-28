@@ -91,7 +91,7 @@ export class ReminderScheduler {
                             return;
                         }
 
-                        const data = response.notification?.content?.data ?? response.notification?.request?.content?.data;
+                        const data = response.notification?.request?.content?.data;
                         const reminderId = String(data?.reminderId ?? "");
 
                         if (
@@ -304,7 +304,7 @@ export class ReminderScheduler {
                                 channelId:
                                     "alarm-channel",
                             },
-                        },
+                        } as any,
 
                         trigger: {
                             type:

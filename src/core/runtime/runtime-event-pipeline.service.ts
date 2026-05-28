@@ -121,6 +121,7 @@ export class RuntimeEventPipelineService {
                 async (
                     payload
                 ) => {
+                    if (!payload) return;
                     try {
                         RuntimeEventStore.add({
                             id: generateId(),
@@ -181,6 +182,7 @@ export class RuntimeEventPipelineService {
                 async (
                     payload
                 ) => {
+                    if (!payload) return;
                     try {
                         RuntimeEventStore.add({
                             id: generateId(),
@@ -237,6 +239,7 @@ export class RuntimeEventPipelineService {
                 async (
                     payload
                 ) => {
+                    if (!payload) return;
                     try {
                         RuntimeEventStore.add({
                             id: generateId(),

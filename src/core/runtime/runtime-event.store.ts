@@ -76,7 +76,15 @@ export class RuntimeEventStore {
     */
 
     static add(
-        type: AppEvent,
+        typeOrEvent: AppEvent | {
+            type: AppEvent;
+            workflowId?: string;
+            sessionId?: string;
+            executionId?: string;
+            payload?: Record<string, unknown> | any;
+            timestamp?: number;
+            id?: string;
+        },
         payload?: {
             workflowId?: string;
 
@@ -90,27 +98,47 @@ export class RuntimeEventStore {
             >;
         }
     ): RuntimeEventRecord {
+        let eventType: AppEvent;
+        let eventWorkflowId: string | undefined;
+        let eventSessionId: string | undefined;
+        let eventExecutionId: string | undefined;
+        let eventPayload: any | undefined;
+
+        if (typeof typeOrEvent === "object" && typeOrEvent !== null) {
+            eventType = typeOrEvent.type;
+            eventWorkflowId = typeOrEvent.workflowId;
+            eventSessionId = typeOrEvent.sessionId;
+            eventExecutionId = typeOrEvent.executionId;
+            eventPayload = typeOrEvent.payload;
+        } else {
+            eventType = typeOrEvent;
+            eventWorkflowId = payload?.workflowId;
+            eventSessionId = payload?.sessionId;
+            eventExecutionId = payload?.executionId;
+            eventPayload = payload?.data;
+        }
+
         const event:
             RuntimeEventRecord =
         {
             id: generateEventId(),
 
-            type,
+            type: eventType,
 
             timestamp:
                 Date.now(),
 
             workflowId:
-                payload?.workflowId,
+                eventWorkflowId,
 
             sessionId:
-                payload?.sessionId,
+                eventSessionId,
 
             executionId:
-                payload?.executionId,
+                eventExecutionId,
 
             payload:
-                payload?.data,
+                eventPayload,
         };
 
         this.events.push(

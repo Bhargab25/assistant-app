@@ -108,7 +108,7 @@ export class RuntimeNotificationActionHandlerService {
             const data =
                 NotificationActions.getNotificationData(
                     response
-                );
+                ) as any;
 
             logInfo(
                 "Runtime notification action received",

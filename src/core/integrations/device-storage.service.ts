@@ -168,7 +168,7 @@ export class DeviceStorageService {
                         JSON.stringify(
                             value
                         ),
-                    ]
+                    ] as [string, string]
                 );
 
             await AsyncStorage.multiSet(
@@ -274,7 +274,8 @@ export class DeviceStorageService {
     static async keys():
         Promise<string[]> {
         try {
-            return await AsyncStorage.getAllKeys();
+            const keys = await AsyncStorage.getAllKeys();
+            return [...keys];
         } catch (error) {
             logError(
                 "Storage key retrieval failed",

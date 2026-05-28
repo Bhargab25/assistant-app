@@ -56,13 +56,16 @@ export const EVENTS = {
         "WORKFLOW_DISABLED",
 
     WORKFLOW_STARTED:
-        "WORKFLOW_STARTED",
+        "workflow.execution.started",
 
     WORKFLOW_COMPLETED:
-        "WORKFLOW_COMPLETED",
+        "workflow.execution.completed",
 
     WORKFLOW_FAILED:
-        "WORKFLOW_FAILED",
+        "workflow.execution.failed",
+
+    WORKFLOW_TRIGGERED:
+        "workflow.triggered",
 
     /*
     |--------------------------------------------------------------------------
@@ -174,4 +177,4 @@ export const EVENTS = {
 */
 
 export type AppEvent =
-    typeof EVENTS[keyof typeof EVENTS];
+    typeof EVENTS[keyof typeof EVENTS] | string;

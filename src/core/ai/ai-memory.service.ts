@@ -13,6 +13,7 @@ import {
 } from "./pattern-detection.service";
 
 import {
+    generateId,
     logInfo,
 } from "../../shared/utils";
 
@@ -295,6 +296,39 @@ export class AIMemoryService {
         );
 
         return records;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Remember Custom Record
+    |--------------------------------------------------------------------------
+    */
+
+    static remember(payload: {
+        category: AIMemoryRecord["category"] | string;
+        summary: string;
+        confidence: number;
+        metadata?: Record<string, unknown>;
+    }): AIMemoryRecord {
+        const record: AIMemoryRecord = {
+            id: generateId(),
+            category: (["behavior", "workflow", "engagement", "timing", "optimization"].includes(payload.category)
+                ? payload.category
+                : "workflow") as AIMemoryRecord["category"],
+            summary: payload.summary,
+            confidence: payload.confidence,
+            createdAt: Date.now(),
+            metadata: payload.metadata,
+        };
+
+        this.memory.push(record);
+
+        logInfo("AI memory remembered", {
+            recordId: record.id,
+            category: record.category,
+        });
+
+        return record;
     }
 
     /*

@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../navigation/AppNavigator";
+import { RootStackParamList } from "../../navigation/types";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { colors, spacing, typography } from "../../../shared/theme";

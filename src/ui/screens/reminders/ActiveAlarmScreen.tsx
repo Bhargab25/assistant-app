@@ -23,7 +23,7 @@ import { DeviceSpeechService } from "../../../core/integrations/device-speech.se
 
 import { colors } from "../../../shared/theme/colors";
 
-import { RootStackParamList } from "../../navigation/AppNavigator";
+import { RootStackParamList } from "../../navigation/types";
 
 /*
 |--------------------------------------------------------------------------

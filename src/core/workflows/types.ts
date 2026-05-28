@@ -21,10 +21,15 @@ export type GeofenceTrigger = {
     locationId: string;
 };
 
+export type ManualTrigger = {
+    type: "manual";
+};
+
 export type Trigger =
     | TimeTrigger
     | IntervalTrigger
-    | GeofenceTrigger;
+    | GeofenceTrigger
+    | ManualTrigger;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,10 +75,41 @@ export type RepeatAction = {
     maxRetries?: number;
 };
 
+export type SetBrightnessAction = {
+    id?: string;
+    type: "set_brightness";
+    name?: string;
+    enabled?: boolean;
+    config: {
+        brightness: number;
+    };
+};
+
+export type SetSilentAction = {
+    id?: string;
+    type: "set_silent";
+    name?: string;
+    enabled?: boolean;
+    config: {
+        silent: boolean;
+    };
+};
+
+export type VibrateAction = {
+    id?: string;
+    type: "vibrate";
+    name?: string;
+    enabled?: boolean;
+    config?: Record<string, unknown>;
+};
+
 export type Action =
     | NotifyAction
     | AskAction
-    | RepeatAction;
+    | RepeatAction
+    | SetBrightnessAction
+    | SetSilentAction
+    | VibrateAction;
 
 /*
 |--------------------------------------------------------------------------

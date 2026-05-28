@@ -52,7 +52,7 @@ const config = {
 */
 
 export const appLogger =
-    logger.createLogger(config);
+    logger.createLogger(config as any);
 
 /*
 |--------------------------------------------------------------------------

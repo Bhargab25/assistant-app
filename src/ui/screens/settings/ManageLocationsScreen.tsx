@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../navigation/AppNavigator";
+import { RootStackParamList } from "../../navigation/types";
 import { LocationService } from "../../../core/geofence/location.service";
 import { SavedLocation } from "../../../core/geofence/location.repository";
 import { useTheme } from "../../../shared/store/theme.store";

@@ -19,7 +19,11 @@ export type NotificationStatus =
     | "delivered"
     | "clicked"
     | "dismissed"
-    | "failed";
+    | "failed"
+    | "completed"
+    | "snoozed"
+    | "skipped"
+    | "rescheduled";
 
 /*
 |--------------------------------------------------------------------------

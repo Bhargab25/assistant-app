@@ -17,6 +17,10 @@ import {
 } from "./device-storage.service";
 
 import {
+    DeviceUsageMonitorService,
+} from "./device-usage-monitor.service";
+
+import {
     DeviceBackgroundTaskService,
 } from "./device-background-task.service";
 
@@ -176,6 +180,14 @@ export class DeviceRuntimeBootstrapService {
 
             this.state.storageReady =
                 true;
+
+            /*
+            |--------------------------------------------------------------------------
+            | Device Usage Monitor
+            |--------------------------------------------------------------------------
+            */
+
+            await DeviceUsageMonitorService.initialize();
 
             /*
             |--------------------------------------------------------------------------

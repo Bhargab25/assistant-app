@@ -30,13 +30,7 @@ import MapSelectionScreen from "../screens/reminders/MapSelectionScreen";
 
 import ManageLocationsScreen from "../screens/settings/ManageLocationsScreen";
 
-/*
-|--------------------------------------------------------------------------
-| Assistant Screens
-|--------------------------------------------------------------------------
-*/
 
-import AssistantChatScreen from "../screens/assistant/AssistantChatScreen";
 
 /*
 |--------------------------------------------------------------------------
@@ -46,63 +40,7 @@ import AssistantChatScreen from "../screens/assistant/AssistantChatScreen";
 
 import ReminderAlarmScreen from "../screens/alarm/ReminderAlarmScreen";
 
-/*
-|--------------------------------------------------------------------------
-| Root Stack Params
-|--------------------------------------------------------------------------
-*/
-
-export type RootStackParamList = {
-  /*
-    |--------------------------------------------------------------------------
-    | Main App
-    |--------------------------------------------------------------------------
-    */
-
-  MainTabs: undefined;
-
-  /*
-    |--------------------------------------------------------------------------
-    | Assistant
-    |--------------------------------------------------------------------------
-    */
-
-  AssistantChat: undefined;
-
-  /*
-    |--------------------------------------------------------------------------
-    | Reminder Screens
-    |--------------------------------------------------------------------------
-    */
-
-  EditReminder: {
-    reminderId: string;
-  };
-
-  ReminderDetails: {
-    reminderId: string;
-  };
-
-  ReminderDashboard: undefined;
-
-  ReminderRecommendations: undefined;
-
-  MapSelection: {
-    locationName: string;
-  };
-
-  ManageLocations: undefined;
-
-  /*
-    |--------------------------------------------------------------------------
-    | Alarm Runtime
-    |--------------------------------------------------------------------------
-    */
-
-  ReminderAlarm: {
-    reminderId: string;
-  };
-};
+import { RootStackParamList } from "./types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -138,9 +76,7 @@ export default function AppNavigator() {
 
         <Stack.Screen name="MainTabs" component={BottomTabNavigator} />
 
-        {/* Assistant */}
 
-        <Stack.Screen name="AssistantChat" component={AssistantChatScreen} />
 
 
 

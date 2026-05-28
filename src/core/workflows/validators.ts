@@ -26,10 +26,15 @@ export const GeofenceTriggerSchema = z.object({
     locationId: z.string(),
 });
 
+export const ManualTriggerSchema = z.object({
+    type: z.literal("manual"),
+});
+
 export const TriggerSchema = z.union([
     TimeTriggerSchema,
     IntervalTriggerSchema,
     GeofenceTriggerSchema,
+    ManualTriggerSchema,
 ]);
 
 /*
@@ -77,10 +82,41 @@ export const RepeatActionSchema = z.object({
     maxRetries: z.number().optional(),
 });
 
+export const SetBrightnessActionSchema = z.object({
+    id: z.string().optional(),
+    type: z.literal("set_brightness"),
+    name: z.string().optional(),
+    enabled: z.boolean().optional(),
+    config: z.object({
+        brightness: z.number().min(0).max(1),
+    }),
+});
+
+export const SetSilentActionSchema = z.object({
+    id: z.string().optional(),
+    type: z.literal("set_silent"),
+    name: z.string().optional(),
+    enabled: z.boolean().optional(),
+    config: z.object({
+        silent: z.boolean(),
+    }),
+});
+
+export const VibrateActionSchema = z.object({
+    id: z.string().optional(),
+    type: z.literal("vibrate"),
+    name: z.string().optional(),
+    enabled: z.boolean().optional(),
+    config: z.record(z.string(), z.unknown()).optional(),
+});
+
 export const ActionSchema = z.union([
     NotifyActionSchema,
     AskActionSchema,
     RepeatActionSchema,
+    SetBrightnessActionSchema,
+    SetSilentActionSchema,
+    VibrateActionSchema,
 ]);
 
 /*

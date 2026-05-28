@@ -86,6 +86,8 @@ export const isValidInterval =
         minutes?: number
     ): boolean => {
         if (
+            minutes === undefined ||
+            minutes === null ||
             !isPositiveNumber(
                 minutes
             )

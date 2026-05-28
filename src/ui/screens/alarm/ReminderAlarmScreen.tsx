@@ -11,7 +11,7 @@ import {
 
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 
-import { RootStackParamList } from "../../navigation/AppNavigator";
+import { RootStackParamList } from "../../navigation/types";
 
 import { ReminderService } from "../../../core/reminders/reminder.service";
 

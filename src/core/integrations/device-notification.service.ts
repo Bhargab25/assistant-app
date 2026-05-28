@@ -421,7 +421,7 @@ export class DeviceNotificationService {
                                         ? "alarm-channel"
                                         : "reminder-channel",
                             },
-                        },
+                        } as any,
 
                         trigger: null,
                     }
@@ -523,7 +523,7 @@ export class DeviceNotificationService {
                                         ? "alarm-channel"
                                         : "reminder-channel",
                             },
-                        },
+                        } as any,
 
                         trigger: {
                             type:

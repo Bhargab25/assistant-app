@@ -379,7 +379,7 @@ export class AppBootstrap {
                     notification
                 ) => {
                     try {
-                        const data = notification.content?.data ?? notification.request?.content?.data;
+                        const data = notification.request?.content?.data;
                         const reminderId = String(data?.reminderId ?? "");
 
 

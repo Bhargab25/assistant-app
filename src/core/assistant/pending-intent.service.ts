@@ -18,7 +18,10 @@ export type PendingIntentType =
     | "location_resolution"
     | "time_resolution"
     | "interval_resolution"
-    | "confirmation";
+    | "confirmation"
+    | "brightness_adjustment"
+    | "silent_mode"
+    | "smart_routine";
 
 /*
 |--------------------------------------------------------------------------

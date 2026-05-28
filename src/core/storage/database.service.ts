@@ -240,11 +240,11 @@ export class DatabaseService {
 
     static async run(
         query: string,
-        params: unknown[] = []
+        params: any[] = []
     ) {
         return this.db.runAsync(
             query,
-            params
+            ...params
         );
     }
 
@@ -256,11 +256,11 @@ export class DatabaseService {
 
     static async getAll<T>(
         query: string,
-        params: unknown[] = []
+        params: any[] = []
     ): Promise<T[]> {
         return this.db.getAllAsync<T>(
             query,
-            params
+            ...params
         );
     }
 
@@ -272,11 +272,11 @@ export class DatabaseService {
 
     static async getFirst<T>(
         query: string,
-        params: unknown[] = []
+        params: any[] = []
     ): Promise<T | null> {
         return this.db.getFirstAsync<T>(
             query,
-            params
+            ...params
         );
     }
 }
