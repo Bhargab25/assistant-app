@@ -227,11 +227,12 @@ export class ReminderScheduler {
                 if (
                     repeat === "daily" ||
                     repeat === "weekly" ||
-                    repeat === "monthly"
+                    repeat === "monthly" ||
+                    (repeat === "none" && reminder.status === "pending")
                 ) {
                     triggerDate = this.findNextFutureOccurrence(
                         triggerDate,
-                        repeat
+                        repeat === "none" ? "daily" : repeat
                     );
 
                     // Persist the advanced date so future calls are already correct
@@ -250,7 +251,7 @@ export class ReminderScheduler {
                     );
 
                     logInfo(
-                        "Repeating reminder advanced to next future occurrence",
+                        "Reminder advanced to next future occurrence",
                         {
                             reminderId: reminder.id,
                             nextDate: reminder.schedule.date,
@@ -578,6 +579,18 @@ export class ReminderScheduler {
                 nextDate
                     .toISOString()
                     .split("T")[0];
+
+            reminder.status = "pending";
+
+            await ReminderStorage.update(
+                reminder.id,
+                {
+                    status: "pending",
+                    schedule: {
+                        ...reminder.schedule,
+                    },
+                }
+            );
 
             /*
             |--------------------------------------------------------------------------

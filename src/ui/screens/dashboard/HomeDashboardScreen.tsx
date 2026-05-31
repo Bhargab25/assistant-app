@@ -138,9 +138,11 @@ export default function HomeDashboardScreen() {
 
   const handleCompleteReminder = async (reminderId: string) => {
     try {
-      // Set status to completed and disable reminder scheduler trigger
-      await ReminderService.update(reminderId, { status: "completed" });
-      await ReminderService.toggleActive(reminderId, false);
+      const reminder = reminders.find((r) => r.id === reminderId);
+      if (!reminder) return;
+
+      const { ReminderRuntime } = require("../../../core/reminders/reminder.runtime");
+      await ReminderRuntime.completeReminder(reminder);
 
       // Refresh list
       const allReminders = await ReminderService.getAll();

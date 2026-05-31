@@ -391,29 +391,35 @@ export class ReminderService {
         active: boolean
     ): Promise<void> {
         try {
+            const updates: Partial<Reminder> = {
+                runtime:
+                {
+                    lastTriggeredAt:
+                        undefined,
+
+                    completedCount:
+                        0,
+
+                    skippedCount:
+                        0,
+
+                    snoozedCount:
+                        0,
+
+                    missedCount:
+                        0,
+
+                    active,
+                },
+            };
+
+            if (active) {
+                updates.status = "pending";
+            }
+
             await ReminderStorage.update(
                 reminderId,
-                {
-                    runtime:
-                    {
-                        lastTriggeredAt:
-                            undefined,
-
-                        completedCount:
-                            0,
-
-                        skippedCount:
-                            0,
-
-                        snoozedCount:
-                            0,
-
-                        missedCount:
-                            0,
-
-                        active,
-                    },
-                }
+                updates
             );
 
             const reminder =

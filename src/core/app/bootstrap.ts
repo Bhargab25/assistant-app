@@ -242,131 +242,29 @@ export class AppBootstrap {
             */
 
             NotificationActions.registerResponseListener(
-                async (
-                    response
-                ) => {
-                    try {
-                        const action =
-                            NotificationActions.getActionIdentifier(
-                                response
-                            );
-
-                        const data =
-                            NotificationActions.getNotificationData(
-                                response
-                            );
-
-                        console.log(
-                            "Notification action:",
-                            action
-                        );
-
-                        console.log(
-                            "Notification data:",
-                            data
-                        );
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | Reminder ID
-                        |--------------------------------------------------------------------------
-                        */
-
-                        const reminderId =
-                            String(
-                                data?.reminderId ??
-                                ""
-                            );
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | Load Reminder if ID is Present
-                        |--------------------------------------------------------------------------
-                        */
-
-                        const reminder = reminderId
-                            ? await ReminderStorage.getById(reminderId)
-                            : null;
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | Handle Reminder Actions
-                        |--------------------------------------------------------------------------
-                        */
-
-                        switch (
-                        action
-                        ) {
-                            /*
-                            |--------------------------------------------------------------------------
-                            | Complete Reminder
-                            |--------------------------------------------------------------------------
-                            */
-
-                            case "DONE":
-                                await ReminderRuntime.completeReminder(reminder || undefined);
-
-                                console.log(
-                                    "Reminder completed"
-                                );
-
-                                break;
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | Snooze Reminder
-                            |--------------------------------------------------------------------------
-                            */
-
-                            case "SNOOZE":
-                                await ReminderRuntime.snoozeReminder(reminder || undefined);
-
-                                console.log(
-                                    "Reminder snoozed"
-                                );
-
-                                break;
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | Skip Reminder
-                            |--------------------------------------------------------------------------
-                            */
-
-                            case "SKIP":
-                                await ReminderRuntime.skipReminder(reminder || undefined);
-
-                                console.log(
-                                    "Reminder skipped"
-                                );
-
-                                break;
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | Open Full Screen Alarm
-                            |--------------------------------------------------------------------------
-                            */
-
-                            default:
-                                if (
-                                    reminderId
-                                ) {
-                                    NavigationService.openAlarm(
-                                        reminderId
-                                    );
-                                }
-
-                                break;
-                        }
-                    } catch (error) {
-                        console.error(
-                            "Notification listener failed:",
-                            error
-                        );
-                    }
+                async (response) => {
+                    await this.handleNotificationResponse(response);
                 }
             );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Handle Last Notification Response (Cold Start)
+            |--------------------------------------------------------------------------
+            */
+
+            try {
+                const lastResponse = await Notifications.getLastNotificationResponseAsync();
+                if (lastResponse) {
+                    console.log(
+                        "[AppBootstrap] Handling cold-start notification response:",
+                        lastResponse
+                    );
+                    await this.handleNotificationResponse(lastResponse);
+                }
+            } catch (err) {
+                console.error("[AppBootstrap] Failed to get last notification response:", err);
+            }
 
             /*
             |--------------------------------------------------------------------------
@@ -608,8 +506,139 @@ export class AppBootstrap {
                 "Application shutdown complete"
             );
         } catch (error) {
+            logError(
+                "Application shutdown failed",
+                error
+            );
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Private Notification Action Handler
+    |--------------------------------------------------------------------------
+    */
+
+    private static async handleNotificationResponse(
+        response: Notifications.NotificationResponse
+    ): Promise<void> {
+        try {
+            const action =
+                NotificationActions.getActionIdentifier(
+                    response
+                );
+
+            const data =
+                NotificationActions.getNotificationData(
+                    response
+                );
+
+            console.log(
+                "Notification action:",
+                action
+            );
+
+            console.log(
+                "Notification data:",
+                data
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Reminder ID
+            |--------------------------------------------------------------------------
+            */
+
+            const reminderId =
+                String(
+                    data?.reminderId ??
+                    ""
+                );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Load Reminder if ID is Present
+            |--------------------------------------------------------------------------
+            */
+
+            const reminder = reminderId
+                ? await ReminderStorage.getById(reminderId)
+                : null;
+
+            /*
+            |--------------------------------------------------------------------------
+            | Handle Reminder Actions
+            |--------------------------------------------------------------------------
+            */
+
+            switch (
+            action
+            ) {
+                /*
+                |--------------------------------------------------------------------------
+                | Complete Reminder
+                |--------------------------------------------------------------------------
+                */
+
+                case "DONE":
+                    await ReminderRuntime.completeReminder(reminder || undefined);
+
+                    console.log(
+                        "Reminder completed"
+                    );
+
+                    break;
+
+                /*
+                |--------------------------------------------------------------------------
+                | Snooze Reminder
+                |--------------------------------------------------------------------------
+                */
+
+                case "SNOOZE":
+                    await ReminderRuntime.snoozeReminder(reminder || undefined);
+
+                    console.log(
+                        "Reminder snoozed"
+                    );
+
+                    break;
+
+                /*
+                |--------------------------------------------------------------------------
+                | Skip Reminder
+                |--------------------------------------------------------------------------
+                */
+
+                case "SKIP":
+                    await ReminderRuntime.skipReminder(reminder || undefined);
+
+                    console.log(
+                        "Reminder skipped"
+                    );
+
+                    break;
+
+                /*
+                |--------------------------------------------------------------------------
+                | Open Full Screen Alarm
+                |--------------------------------------------------------------------------
+                */
+
+                default:
+                    if (
+                        reminderId
+                    ) {
+                        NavigationService.openAlarm(
+                            reminderId
+                        );
+                    }
+
+                    break;
+            }
+        } catch (error) {
             console.error(
-                "Application shutdown failed:",
+                "Notification handler failed:",
                 error
             );
         }

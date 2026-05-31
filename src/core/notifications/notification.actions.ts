@@ -40,7 +40,7 @@ export class NotificationActions {
                         identifier: NOTIFICATION_ACTIONS.DONE,
                         buttonTitle: "Done",
                         options: {
-                            opensAppToForeground: false,
+                            opensAppToForeground: true,
                         },
                     },
 
@@ -48,7 +48,7 @@ export class NotificationActions {
                         identifier: NOTIFICATION_ACTIONS.SNOOZE,
                         buttonTitle: "Snooze",
                         options: {
-                            opensAppToForeground: false,
+                            opensAppToForeground: true,
                         },
                     },
 
@@ -56,7 +56,7 @@ export class NotificationActions {
                         identifier: NOTIFICATION_ACTIONS.SKIP,
                         buttonTitle: "Skip",
                         options: {
-                            opensAppToForeground: false,
+                            opensAppToForeground: true,
                         },
                     },
 

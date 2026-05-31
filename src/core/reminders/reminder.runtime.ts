@@ -299,6 +299,11 @@ export class ReminderRuntime {
 
                         lastTriggeredAt:
                             Date.now(),
+
+                        active:
+                            reminder.schedule.repeat !== "none"
+                                ? reminder.runtime.active
+                                : false,
                     },
                 }
             );
@@ -500,6 +505,11 @@ export class ReminderRuntime {
                         skippedCount:
                             reminder.runtime
                                 .skippedCount + 1,
+
+                        active:
+                            reminder.schedule.repeat !== "none"
+                                ? reminder.runtime.active
+                                : false,
                     },
                 }
             );
