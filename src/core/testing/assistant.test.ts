@@ -1,13 +1,15 @@
 // src/core/testing/assistant.test.ts
 
-jest.mock("expo-av", () => ({
-    Audio: {
-        Sound: jest.fn(),
-        setIsEnabledAsync: jest.fn(),
-        setAudioModeAsync: jest.fn(),
-    },
-    InterruptionModeAndroid: {},
-    InterruptionModeIOS: {},
+jest.mock("expo-audio", () => ({
+    createAudioPlayer: jest.fn(() => ({
+        play: jest.fn(),
+        pause: jest.fn(),
+        remove: jest.fn(),
+        addListener: jest.fn(),
+        loop: false,
+        volume: 1,
+    })),
+    setAudioModeAsync: jest.fn(),
 }));
 
 jest.mock("@react-navigation/native", () => ({

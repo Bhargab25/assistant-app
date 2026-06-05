@@ -15,7 +15,9 @@ const withAlarmFlags = (config) => {
       "android.permission.USE_FULL_SCREEN_INTENT",
       "android.permission.DISABLE_KEYGUARD",
       "android.permission.WAKE_LOCK",
-      "android.permission.FOREGROUND_SERVICE"
+      "android.permission.FOREGROUND_SERVICE",
+      "android.permission.SCHEDULE_EXACT_ALARM",
+      "android.permission.USE_EXACT_ALARM"
     ];
 
     permissions.forEach((permission) => {
@@ -83,8 +85,10 @@ const withAlarmFlags = (config) => {
 
     // Inject onCreate flags
     // Under Kotlin, we hook after super.onCreate(...)
-    const onCreateFlags = `        setShowWhenLocked(true)
-        setTurnScreenOn(true)
+    const onCreateFlags = `        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON)`;
 
     // Look for super.onCreate(null) or super.onCreate(savedInstanceState)

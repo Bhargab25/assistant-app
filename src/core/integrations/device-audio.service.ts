@@ -1,10 +1,10 @@
 // src/core/integrations/device-audio.service.ts
 
 import {
-    Audio,
-    InterruptionModeAndroid,
-    InterruptionModeIOS,
-} from "expo-av";
+    setAudioModeAsync,
+    createAudioPlayer,
+    AudioPlayer
+} from "expo-audio";
 
 import {
     logInfo,
@@ -29,7 +29,7 @@ type DeviceAudioState =
         volume: number;
 
         currentSound?:
-        Audio.Sound;
+        AudioPlayer;
     };
 
 /*
@@ -97,28 +97,13 @@ export class DeviceAudioService {
             |--------------------------------------------------------------------------
             */
 
-            await Audio.setAudioModeAsync(
+            await setAudioModeAsync(
                 {
-                    allowsRecordingIOS:
-                        false,
-
-                    playsInSilentModeIOS:
-                        true,
-
-                    staysActiveInBackground:
-                        true,
-
-                    shouldDuckAndroid:
-                        false,
-
-                    playThroughEarpieceAndroid:
-                        false,
-
-                    interruptionModeIOS:
-                        InterruptionModeIOS.DoNotMix,
-
-                    interruptionModeAndroid:
-                        InterruptionModeAndroid.DoNotMix,
+                    allowsRecording: false,
+                    playsInSilentMode: true,
+                    shouldPlayInBackground: true,
+                    shouldRouteThroughEarpiece: false,
+                    interruptionMode: 'doNotMix',
                 }
             );
 
@@ -180,25 +165,12 @@ export class DeviceAudioService {
             |--------------------------------------------------------------------------
             */
 
-            const { sound } =
-                await Audio.Sound.createAsync(
-                    typeof source ===
-                        "string"
-                        ? { uri: source }
-                        : source,
-                    {
-                        shouldPlay:
-                            true,
+            const sound = createAudioPlayer(source, {
+                keepAudioSessionActive: true
+            });
 
-                        isLooping:
-                            options?.looping ??
-                            false,
-
-                        volume:
-                            options?.volume ??
-                            1,
-                    }
-                );
+            sound.loop = options?.looping ?? false;
+            sound.volume = options?.volume ?? 1;
 
             /*
             |--------------------------------------------------------------------------
@@ -226,20 +198,17 @@ export class DeviceAudioService {
             |--------------------------------------------------------------------------
             */
 
-            sound.setOnPlaybackStatusUpdate(
-                (
-                    status
-                ) => {
-                    if (
-                        status.isLoaded &&
-                        status.didJustFinish &&
-                        !status.isLooping
-                    ) {
-                        this.state.playing =
-                            false;
-                    }
+            sound.addListener('playbackStatusUpdate', (status) => {
+                if (
+                    status.isLoaded &&
+                    status.didJustFinish &&
+                    !status.loop
+                ) {
+                    this.state.playing = false;
                 }
-            );
+            });
+
+            sound.play();
 
             logInfo(
                 "Audio playback started"
@@ -305,9 +274,9 @@ export class DeviceAudioService {
                 return;
             }
 
-            await this.state.currentSound.stopAsync();
+            this.state.currentSound.pause();
 
-            await this.state.currentSound.unloadAsync();
+            this.state.currentSound.remove();
 
             this.state.currentSound =
                 undefined;
@@ -345,7 +314,7 @@ export class DeviceAudioService {
                 return;
             }
 
-            await this.state.currentSound.pauseAsync();
+            this.state.currentSound.pause();
 
             this.state.playing =
                 false;
@@ -377,7 +346,7 @@ export class DeviceAudioService {
                 return;
             }
 
-            await this.state.currentSound.playAsync();
+            this.state.currentSound.play();
 
             this.state.playing =
                 true;
@@ -410,9 +379,7 @@ export class DeviceAudioService {
                 return;
             }
 
-            await this.state.currentSound.setVolumeAsync(
-                volume
-            );
+            this.state.currentSound.volume = volume;
 
             this.state.volume =
                 volume;

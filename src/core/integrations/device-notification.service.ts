@@ -245,7 +245,7 @@ export class DeviceNotificationService {
             */
 
             await Notifications.setNotificationChannelAsync(
-                "alarm-channel",
+                "alarm-channel-v3",
                 {
                     name:
                         "Alarm Notifications",
@@ -260,7 +260,7 @@ export class DeviceNotificationService {
                         true,
 
                     sound:
-                        "default",
+                        "alarm_sound",
 
                     bypassDnd:
                         true,
@@ -418,7 +418,7 @@ export class DeviceNotificationService {
                             android: {
                                 channelId:
                                     payload.fullScreen
-                                        ? "alarm-channel"
+                                        ? "alarm-channel-v3"
                                         : "reminder-channel",
                             },
                         } as any,
@@ -520,7 +520,7 @@ export class DeviceNotificationService {
                             android: {
                                 channelId:
                                     payload.fullScreen
-                                        ? "alarm-channel"
+                                        ? "alarm-channel-v3"
                                         : "reminder-channel",
                             },
                         } as any,

@@ -303,7 +303,7 @@ export class ReminderScheduler {
 
                             android: {
                                 channelId:
-                                    "alarm-channel",
+                                    "alarm-channel-v3",
                             },
                         } as any,
 

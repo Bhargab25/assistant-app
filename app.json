@@ -22,7 +22,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-
     "plugins": [
       "expo-sqlite",
       [
@@ -34,7 +33,20 @@
         }
       ],
       "expo-font",
-      "./plugins/withAlarmFlags"
-    ]
+      [
+        "expo-audio",
+        {
+          "enableBackgroundPlayback": true
+        }
+      ],
+      "./plugins/withAlarmFlags",
+      "./plugins/withCustomNotificationSound",
+      "expo-audio"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "935e4cab-3adb-4c2f-b9db-ec0829c97c01"
+      }
+    }
   }
 }
